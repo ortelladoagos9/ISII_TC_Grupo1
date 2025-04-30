@@ -81,6 +81,10 @@
     <p>© 2025 Viaje Fácil - Todos los derechos reservados</p>
 </footer>  
 
-<script src="{% static '/index_alojamientos.js' %}"></script>
+<script>
+    const DESTINOS_API_URL = "{% url 'buscar_alojamientos:api_destinos' %}";
+</script>
+<script src="{% static 'index_alojamientos.js' %}"></script>
+
 </body>
 </html>

@@ -1,0 +1,91 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Viaje Fácil</title>
+    <link rel="stylesheet" href="{% static '/index_alojamientos.css' %}">
+</head>
+<body>
+
+<header class="header">
+    <div class="logo">
+        <img src="{% static '/img/logo.png' %}" alt="Viaje Fácil">
+        <span>Viaje Fácil</span>
+    </div>
+    
+    <nav class="nav">
+        <a href="#">Alojamientos</a>
+        <a href="#">Vuelos</a>
+        <a href="#">Traslados</a>
+        <a href="#">Paquetes</a>
+    </nav>
+    <div class="buttons">
+        <button class="register" onclick="registrarUsuario()">Registrarse</button>
+        <button class="login" onclick="login()">Iniciar Sesión</button>
+    </div>
+</header>
+
+<main class="main">
+    <div class="container-search-section">
+        <section class="search-section">
+            <h1>Encuentra tu próxima estancia</h1>
+            <p>Busca ofertas en hoteles, casas y mucho más...</p>
+            <div class="search-form">
+                <div class="autocomplete-container">
+                    <input type="text" id="destino" placeholder="Elija un destino" autocomplete="off">
+                    <div id="sugerencias" class="sugerencias"></div>
+                </div>                
+                <input type="date" class="fecha_entrada" placeholder="Fecha Entrada">
+                <input type="date" class="fecha_salida" placeholder="Fecha Salida">
+                <input type="number" class="cantidad_personas" placeholder="Personas" min="1">
+                <input type="number" class="cantidad_habitaciones" placeholder="Habitaciones" min="1">
+                <button><a href="{% url 'buscar_alojamientos:lista_hoteles' %}">Buscar</a></button>
+
+            </div>
+        </section>
+    </div>  
+
+    <div class="container-popular-destinations">
+        <section class="popular-destinations">
+            <h2>Destinos de moda</h2>
+            <p>Opciones más populares entre la comunidad viajera de Argentina</p>
+            <div class="destinations-grid">
+                <div class="destination">
+                    <img src="{% static '/img/bsas.jpg' %}" alt="Buenos Aires">
+                    <div class="dest-title">Buenos Aires</div>
+                </div>
+                <div class="destination">
+                    <img src="{% static '/img/mardel.jpg' %}" alt="Mar del Plata">
+                    <div class="dest-title">Mar del Plata</div>
+                </div>
+                <div class="destination">
+                    <img src="{% static '/img/riojaneiro.jpg' %}" alt="Rio de Janeiro">
+                    <div class="dest-title">Río de Janeiro</div>
+                </div>
+                <div class="destination">
+                    <img src="{% static '/img/barilo.jpg' %}" alt="Bariloche">
+                    <div class="dest-title">Bariloche</div>
+                </div>
+                <div class="destination">
+                    <img src="{% static '/img/cba.jpg' %}" alt="Cordoba">
+                    <div class="dest-title">Córdoba</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</main>
+
+<footer class="container-footer">
+    <p>© 2025 Viaje Fácil - Todos los derechos reservados</p>
+</footer>  
+
+<script>
+    const DESTINOS_API_URL = "{% url 'buscar_alojamientos:api_destinos' %}";
+</script>
+<script src="{% static 'index_alojamientos.js' %}"></script>
+
+</body>
+</html>

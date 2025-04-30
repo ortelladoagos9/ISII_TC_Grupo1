@@ -42,7 +42,8 @@
                 <input type="date" class="fecha_salida" placeholder="Fecha Salida">
                 <input type="number" class="cantidad_personas" placeholder="Personas" min="1">
                 <input type="number" class="cantidad_habitaciones" placeholder="Habitaciones" min="1">
-                <button onclick="buscar()">Buscar</button>
+                <button><a href="{% url 'buscar_alojamientos:lista_hoteles' %}">Buscar</a></button>
+
             </div>
         </section>
     </div>  

@@ -3,33 +3,37 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Listado de Hoteles</title>
-  <link rel="stylesheet" href="{% static '/lista_hoteles.css' %}">
-</head>
-<body>
-    <header class="header">
-        <div class="logo">
-            <img src="{% static '/img/logo.png' %}" alt="Viaje Fácil">
-            <span>Viaje Fácil</span>
-        </div>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Lista de Hoteles</title>
+    <link rel="stylesheet" href="{% static '/index_alojamientos.css' %}">
+    </head>
+    <body>
+
         
-        <nav class="nav">
-            <a href="{% url 'buscar_alojamientos:buscar_alojamientos' %}">Alojamientos</a>
-            <a href="#">Vuelos</a>
-            <a href="#">Traslados</a>
-            <a href="#">Paquetes</a>
-        </nav>
-        <div class="buttons">
-            <button class="register" onclick="registrarUsuario()">Registrarse</button>
-            <button class="login" onclick="login()">Iniciar Sesión</button>
-        </div>
+    <header class="header">
+    <div class="logo">
+        <img src="{% static '/img/logo.png' %}" alt="Viaje Fácil">
+        <span>Viaje Fácil</span>
+    </div>
+    
+    <nav class="nav">
+        <a href="#">Alojamientos</a>
+        <a href="#">Vuelos</a>
+        <a href="#">Traslados</a>
+        <a href="#">Paquetes</a>
+    </nav>   
+
+    <div class="buttons">
+        <button class="register" onclick="registrarUsuario()">Registrarse</button>
+        <button class="login" onclick="login()">Iniciar Sesión</button>
+    </div>
     </header>
 
     <main class="main">
         <div class="container-search-section">
             <section class="search-section">
+                                
                 <div class="search-form">
                     <div class="autocomplete-container">
                         <input type="text" id="destino" placeholder="Elija un destino" autocomplete="off">
@@ -42,46 +46,77 @@
                     <button onclick="buscar()">Buscar</button>
                 </div>
             </section>
-        </div>
-        <div class="container-hoteles">
-            <div class="filtros">
-                <h3>Filtrar por:</h3>
-            
-                <label>Tu presupuesto (por noche)</label>
-                <input type="range" min="15000" max="200000" step="5000" />
-                <p>$15.000 - $200.000+</p>
-            
-                <label>Categoría del alojamiento</label>
-                <div><input type="checkbox" /> 3 estrellas</div>
-                <div><input type="checkbox" /> 4 estrellas</div>
-                <div><input type="checkbox" /> 5 estrellas</div>
-            
-                <label>Servicios de la habitación</label>
-                <div><input type="checkbox" /> Cocina</div>
-                <div><input type="checkbox" /> TV</div>
-                <div><input type="checkbox" /> Aire acondicionado</div>
-                <div><input type="checkbox" /> Piscina climatizada</div>
-                <div><input type="checkbox" /> Spa</div>
-            </div>
+        </div>  
 
-            <div class="resultados">
-                <div class="barra-superior">
-                  <h2>Córdoba: <span id="total-hoteles">0</span> alojamientos encontrados</h2>
-                  <button class="ordenar-btn">↑↓ Ordenar por:</button>
+    <main class="main">
+        <section class="hotel-list-section">
+            <h1>Hoteles Disponibles</h1>
+            <div class="hotel-grid">
+            {% for hotel in hoteles %}
+            
+            <div class="hotel-card">
+                {% if hotel.imagen_hotel %}
+                
+                <img src="{{ hotel.imagen_hotel.url }}" alt="{{ hotel.nombre_hotel }}" class="hotel-image">
+                {% else %}
+                <img src="{% static '/img/default-hotel.jpg' %}" alt="Imagen no disponible" class="hotel-image">
+                {% endif %}
+                <div class="hotel-info">
+                <h3>{{ hotel.nombre_hotel }}</h3>
+                <p>{{ hotel.descripcion_hotel|truncatewords:25 }}</p>
+                <p>Estrellas: {{ hotel.cantidad_estrellas_hotel }}</p>
+                <p>
+                    Precio desde: 
+                    
+                </p>
                 </div>
-                <div id="lista-hoteles"></div>
-                <!-- Pasamos STATIC_URL a JS -->
-                <script>
-                    const STATIC_URL = "{% static '' %}";
-                </script>
             </div>
-        </div>
+            {% empty %}
+            <p>No hay hoteles disponibles en este momento.</p>
+            {% endfor %}
+            </div>
+        </section>
     </main>
 
     <footer class="container-footer">
         <p>© 2025 Viaje Fácil - Todos los derechos reservados</p>
-    </footer>  
+        </footer>
 
-    <script src="{% static '/lista_hoteles.js' %}"></script>
-</body>
-</html>
+        <style>
+        .hotel-list-section {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: auto;
+        }
+
+        .hotel-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 2rem;
+        }
+
+        .hotel-card {
+        border: 1px solid #ddd;
+        border-radius: 10px;
+        overflow: hidden;
+        background-color: #fff;
+        transition: box-shadow 0.3s ease;
+        }
+
+        .hotel-card:hover {
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        }
+
+        .hotel-image {
+        width: 100%;
+        height: 180px;
+        object-fit: cover;
+        }
+
+        .hotel-info {
+        padding: 1rem;
+        }
+        </style>
+
+    </body>
+    </html>

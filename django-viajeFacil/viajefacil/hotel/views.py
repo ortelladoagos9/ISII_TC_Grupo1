@@ -1,4 +1,6 @@
 from django.shortcuts import render
+from .models import Hotel
+from .models import Categoria
 from django.http import JsonResponse
 from .models import Localidad
 
@@ -7,6 +9,10 @@ def index_alojamientos (request):
 
 def lista_hoteles (request):
     return render (request, 'lista_hoteles.html')
+
+def lista_hoteles(request):
+    hoteles = Hotel.objects.all().prefetch_related('habitaciones__categoria')
+    return render(request, 'lista_hoteles.html', {'hoteles': hoteles})
 
 def obtener_destinos(request):
     localidades = Localidad.objects.select_related('id_provincia__id_pais').all()

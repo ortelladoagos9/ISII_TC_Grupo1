@@ -1,92 +1,117 @@
 from django.contrib import admin
-from .models import Servicio, Categoria, CategoriaServicio, EstadoHabitacion, EstadoReserva, ServicioHotel, Pais, Provincia, Localidad, Domicilio, Hotel, Habitacion, ReservaHabitacion, ReservaHotel
+from .models import (
+    Pais, Provincia, Localidad, Direccion,
+    Viajero,
+    Hotel, Categoria, HotelCategoria,
+    ServicioHotel, HotelServicio,
+    ServicioCategoriaHabitacion, CategoriaServicio,
+    DisponibilidadCategoria,
+    EstadoReserva, ReservaHotel, ReservaHotelDetalle
+)
 
-@admin.register(Servicio)
-class ServicioAdmin(admin.ModelAdmin):
-    list_display = ['nombre_servicio', 'descripcion_servicio']
-    search_fields = ['nombre_servicio']
+# ========== UBICACIÓN ==========
+@admin.register(Pais)
+class PaisAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nombre']
+    search_fields = ['nombre']
+
+
+@admin.register(Provincia)
+class ProvinciaAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nombre', 'pais']
+    list_filter = ['pais']
+    search_fields = ['nombre']
+
+
+@admin.register(Localidad)
+class LocalidadAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nombre', 'provincia']
+    list_filter = ['provincia']
+    search_fields = ['nombre']
+
+
+@admin.register(Direccion)
+class DireccionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'calle', 'numero', 'cod_postal', 'localidad']
+    search_fields = ['calle', 'numero', 'cod_postal']
+
+
+# ========== VIAJERO ==========
+@admin.register(Viajero)
+class ViajeroAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nombre', 'apellido', 'email', 'telefono']
+    search_fields = ['nombre', 'apellido', 'email']
+
+
+# ========== HOTEL & CATEGORÍA ==========
+@admin.register(Hotel)
+class HotelAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nombre', 'estrellas', 'direccion']
+    search_fields = ['nombre']
+    list_filter = ['estrellas']
+
 
 @admin.register(Categoria)
 class CategoriaAdmin(admin.ModelAdmin):
-    list_display = ['nombre_categoria', 'descripcion_categoria', 'capacidad_huesped', 'cantidad_hab', 'preview_imagen', 'precio_base_categoria', 'estado_categoria']
-    list_filter = ['cantidad_hab', 'estado_categoria']
-    search_fields = ['nombre_categoria']
-    readonly_fields = ['preview_imagen']
+    list_display = ['id', 'nombre', 'capacidad', 'precio']
+    search_fields = ['nombre']
+    list_filter = ['capacidad']
 
-    def preview_imagen(self, obj):
-        if obj.imagen_categoria:
-            return f'<img src="{obj.imagen_categoria.url}" width="100" height="60" />'
-        return "(No imagen)"
-    preview_imagen.allow_tags = True
-    preview_imagen.short_description = 'Vista previa'
+
+@admin.register(HotelCategoria)
+class HotelCategoriaAdmin(admin.ModelAdmin):
+    list_display = ['hotel', 'categoria']
+    list_filter = ['hotel', 'categoria']
+    search_fields = ['hotel__nombre', 'categoria__nombre']
+
+
+# ========== SERVICIOS ==========
+@admin.register(ServicioHotel)
+class ServicioHotelAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nombre']
+    search_fields = ['nombre']
+
+
+@admin.register(HotelServicio)
+class HotelServicioAdmin(admin.ModelAdmin):
+    list_display = ['hotel', 'servicio']
+    list_filter = ['hotel', 'servicio']
+
+
+@admin.register(ServicioCategoriaHabitacion)
+class ServicioCategoriaHabitacionAdmin(admin.ModelAdmin):
+    list_display = ['id', 'nombre']
+    search_fields = ['nombre']
+
 
 @admin.register(CategoriaServicio)
 class CategoriaServicioAdmin(admin.ModelAdmin):
     list_display = ['categoria', 'servicio']
-    search_fields = ['categoria__nombre_categoria', 'servicio__nombre_servicio']
+    list_filter = ['categoria', 'servicio']
 
-@admin.register(EstadoHabitacion)
-class EstadoHabitacionAdmin(admin.ModelAdmin):
-    list_display = ['descripcion_estado_habitacion']
-    search_fields = ['descripcion_estado_habitacion']
 
+# ========== DISPONIBILIDAD ==========
+@admin.register(DisponibilidadCategoria)
+class DisponibilidadCategoriaAdmin(admin.ModelAdmin):
+    list_display = ['categoria', 'fecha', 'capacidad_disponible']
+    list_filter = ['categoria', 'fecha']
+
+
+# ========== RESERVAS ==========
 @admin.register(EstadoReserva)
 class EstadoReservaAdmin(admin.ModelAdmin):
-    list_display = ['descripcion_estado_reserva']
-    search_fields = ['descripcion_estado_reserva']
+    list_display = ['id', 'descripcion']
+    search_fields = ['descripcion']
 
-@admin.register(ServicioHotel)
-class ServicioHotelAdmin(admin.ModelAdmin):
-    list_display = ['nombre_servicio']
-    search_fields = ['nombre_servicio']
-
-@admin.register(Pais)
-class PaisAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre_pais')
-    search_fields = ('nombre_pais',)
-
-@admin.register(Provincia)
-class ProvinciaAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre_provincia', 'id_pais')
-    search_fields = ('nombre_provincia',)
-    list_filter = ('id_pais',)
-
-@admin.register(Localidad)
-class LocalidadAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre_localidad', 'id_provincia')
-    search_fields = ('nombre_localidad',)
-    list_filter = ('id_provincia',)
-
-@admin.register(Domicilio)
-class DomicilioAdmin(admin.ModelAdmin):
-    list_display = ('id', 'calle_domicilio', 'numero_domicilio', 'id_localidad')
-    search_fields = ('calle_domicilio',)
-    list_filter = ('id_localidad',)
-
-@admin.register(Hotel)
-class HotelAdmin(admin.ModelAdmin):
-    list_display = ('id', 'nombre_hotel', 'cantidad_estrellas_hotel', 'id_domicilio')
-    search_fields = ('nombre_hotel',)
-    list_filter = ('cantidad_estrellas_hotel',)
-
-@admin.register(Habitacion)
-class HabitacionAdmin(admin.ModelAdmin):
-    list_display = ('id', 'piso_habitacion', 'fecha_ingreso', 'fecha_egreso', 'id_hoteles', 'id_estado_habitacion', 'id_categoria')
-    list_filter = ('id_hoteles', 'id_estado_habitacion', 'id_categoria')
-    search_fields = ('id_hoteles__nombre_hotel', 'piso_habitacion')
-
-@admin.register(ReservaHabitacion)
-class ReservaHabitacionAdmin(admin.ModelAdmin):
-    list_display = ('id_reserva', 'habitacion', 'fecha_reserva', 'estado_reserva')
-    list_filter = ('estado_reserva', 'fecha_reserva')
-    search_fields = ('id_reserva', 'habitacion__id')
 
 @admin.register(ReservaHotel)
 class ReservaHotelAdmin(admin.ModelAdmin):
-    list_display = ('id', 'id_hotel', 'id_viajero', 'cantidad_habitacion', 'monto_total_hotel')
-    list_filter = ('id_hotel',)
-    search_fields = ('id', 'id_hotel__nombre_hotel')
+    list_display = ['id', 'viajero', 'fecha_reserva', 'fecha_ingreso', 'fecha_egreso', 'estado', 'monto_total']
+    list_filter = ['estado', 'fecha_reserva']
+    search_fields = ['viajero__nombre', 'viajero__apellido']
 
 
-
-
+@admin.register(ReservaHotelDetalle)
+class ReservaHotelDetalleAdmin(admin.ModelAdmin):
+    list_display = ['reserva', 'categoria', 'cantidad_habitaciones', 'precio_unitario', 'sub_total']
+    list_filter = ['categoria']

@@ -9,21 +9,47 @@
 {% endblock %}
 
 {% block content %}
-    <div class="container-search-section">
-        <section class="search-section">               
-            <div class="search-form">
-                <div class="autocomplete-container">
-                    <input type="text" id="destino" placeholder="Elija un destino" autocomplete="off">
+<div class="container-search-section">
+    <section class="search-section text-white py-4">
+        <div class="search-form">        
+            <form class="row gx-2 gy-3 align-items-end">
+                <!-- Destino -->
+                <div class="col-12  col-md-12 position-relative">
+                    <input type="text" id="destino" class="form-control" placeholder="Elija un destino" autocomplete="off">
                     <div id="sugerencias" class="sugerencias"></div>
-                </div>                
-                <input type="date" class="fecha_entrada" placeholder="Fecha Entrada">
-                <input type="date" class="fecha_salida" placeholder="Fecha Salida">
-                <input type="number" class="cantidad_personas" placeholder="Personas" min="1">
-                <input type="number" class="cantidad_habitaciones" placeholder="Habitaciones" min="1">
-                <button onclick="buscar()">Buscar</button>
-            </div>
-        </section>
-    </div> 
+                </div>
+
+                <!-- Fecha entrada -->
+                <div class="col-6 col-md-3">
+                    <input type="date" class="form-control" placeholder="Fecha Entrada">
+                </div>
+
+                <!-- Fecha salida -->
+                <div class="col-6 col-md-3">
+                    <input type="date" class="form-control" placeholder="Fecha Salida">
+                </div>
+
+                <!-- Personas -->
+                <div class="col-6 col-md-2">
+                    <input type="number" class="form-control" placeholder="Personas" min="1">
+                </div>
+
+                <!-- Habitaciones -->
+                <div class="col-6 col-md-2">
+                    <input type="number" class="form-control" placeholder="Habitaciones" min="1">
+                </div>
+
+                <!-- Botón -->
+                <div class="col-12 col-md-2">
+                    <a href="{% url 'hotel:lista_hoteles' %}" class="btn btn-success w-100">Buscar</a>
+                </div>
+            </form>
+        </div>
+    </section>
+</div> 
+    
+    <!-- <button onclick="buscar()">Buscar</button> -->
+            
 
     <div class="container-filter-section">
         <section class="filter-section">
@@ -77,7 +103,7 @@
 
 {% block script %} 
     <script>
-        const DESTINOS_API_URL = "{% url 'buscar_alojamientos:api_destinos' %}";
+        const DESTINOS_API_URL = "{% url 'hotel:api_destinos' %}";
     </script>
     <script src="{% static 'js/lista_hoteles.js' %}"></script>
 {% endblock %}     

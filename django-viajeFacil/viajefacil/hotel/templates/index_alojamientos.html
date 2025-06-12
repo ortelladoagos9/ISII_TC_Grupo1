@@ -16,18 +16,18 @@
             <p class="mb-4">Busca ofertas en hoteles, casas y mucho más...</p>
             <form class="row gx-2 gy-3 align-items-end">
                 <!-- Destino -->
-                <div class="col-12  col-md-2 position-relative">
+                <div class="col-12  col-md-12 position-relative">
                     <input type="text" id="destino" class="form-control" placeholder="Elija un destino" autocomplete="off">
                     <div id="sugerencias" class="sugerencias"></div>
                 </div>
 
                 <!-- Fecha entrada -->
-                <div class="col-6 col-md-2">
+                <div class="col-6 col-md-3">
                     <input type="date" class="form-control" placeholder="Fecha Entrada">
                 </div>
 
                 <!-- Fecha salida -->
-                <div class="col-6 col-md-2">
+                <div class="col-6 col-md-3">
                     <input type="date" class="form-control" placeholder="Fecha Salida">
                 </div>
 
@@ -43,7 +43,7 @@
 
                 <!-- Botón -->
                 <div class="col-12 col-md-2">
-                    <a href="{% url 'buscar_alojamientos:lista_hoteles' %}" class="btn btn-success w-100">Buscar</a>
+                    <a href="{% url 'hotel:lista_hoteles' %}" class="btn btn-success w-100">Buscar</a>
                 </div>
             </form>
         </div>
@@ -94,7 +94,7 @@
 
 {% block script %} 
     <script>
-        const DESTINOS_API_URL = "{% url 'buscar_alojamientos:api_destinos' %}";
+        const DESTINOS_API_URL = "{% url 'hotel:api_destinos' %}";
     </script>
     <script src="{% static 'js/index_alojamientos.js' %}"></script>
 {% endblock %}

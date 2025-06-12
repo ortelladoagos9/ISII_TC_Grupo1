@@ -21,7 +21,7 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('hotel/', include('viajefacil.hotel.urls', namespace='buscar_alojamientos'))
+    path('hotel/', include('viajefacil.hotel.urls', namespace='hotel'))
 ]
 
 if settings.DEBUG:

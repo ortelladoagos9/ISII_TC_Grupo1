@@ -7,3 +7,8 @@ class Localidad(models.Model):
 
     def __str__(self):
         return f"{self.nombre}, {self.provincia.nombre}"
+
+    class Meta:
+        db_table = 'Localidades'
+        verbose_name = 'Localidad'
+        verbose_name_plural = 'Localidades' 

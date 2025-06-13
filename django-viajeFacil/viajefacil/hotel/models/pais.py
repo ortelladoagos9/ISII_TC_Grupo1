@@ -7,5 +7,6 @@ class Pais(models.Model):
         return self.nombre
 
     class Meta:
+        db_table = 'Países'
         verbose_name = "País"
         verbose_name_plural = "Países"

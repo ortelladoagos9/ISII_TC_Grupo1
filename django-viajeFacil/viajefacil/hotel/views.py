@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from .models import Hotel, Localidad, HotelCategoria
+from .models import Hotel, Localidad, Hoteles_Categorias 
 
 def index_alojamientos (request):
     return render (request, 'index_alojamientos.html')

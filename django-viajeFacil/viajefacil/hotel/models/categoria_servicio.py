@@ -1,13 +1,16 @@
 from django.db import models
-from .servicio_hotel import ServicioHotel
-from .servicio_categoria_habitacion import ServicioCategoriaHabitacion
+from .servicios_hoteles import Servicios_Hoteles
+from .servicio_categoria_habitacion import Servicios_Categorias_Habitaciones
 
-class CategoriaServicio(models.Model):
-    servicio = models.ForeignKey(ServicioHotel, on_delete=models.CASCADE)
-    categoria = models.ForeignKey(ServicioCategoriaHabitacion, on_delete=models.CASCADE)
-
-    class Meta:
-        unique_together = ('servicio', 'categoria')
+class Categorias_Servicios(models.Model):
+    ID_servicio_hotel = models.ForeignKey(Servicios_Hoteles, on_delete=models.CASCADE)
+    ID_categoria = models.ForeignKey(Servicios_Categorias_Habitaciones, on_delete=models.CASCADE)
 
     def __str__(self):
-        return f"{self.servicio} - {self.categoria}"
+        return f"{self.ID_servicio_hotel} - {self.ID_categoria}"
+
+    class Meta:
+        db_table = 'Categorias_Servicios'
+        unique_together = ('ID_servicio_hotel', 'ID_categoria')
+        verbose_name = "Categoría Servicio"
+        verbose_name_plural = "Categorías Servicios"

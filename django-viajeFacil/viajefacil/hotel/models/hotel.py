@@ -2,10 +2,17 @@ from django.db import models
 from .direccion import Direccion
 
 class Hotel(models.Model):
-    nombre = models.CharField(max_length=100)
-    direccion = models.ForeignKey(Direccion, on_delete=models.SET_NULL, null=True)
-    telefono = models.CharField(max_length=20)
-    email = models.EmailField(unique=True)
+    ID_hotel = models.AutoField(primary_key=True)
+    nombre_hotel = models.CharField(max_length=100)
+    descripcion_hotel = models.TextField(null=True, blank=True)
+    cantidad_estrellas_hotel = models.IntegerField()
+    imagen_hotel = models.ImageField(upload_to='imagenes_hoteles/', null=True, blank=True)
+    ID_direccion = models.ForeignKey(Direccion, on_delete=models.SET_NULL, null=True)
 
     def __str__(self):
-        return self.nombre
+        return self.nombre_hotel
+
+    class Meta:
+        db_table = 'Hoteles'
+        verbose_name = 'Hotel'
+        verbose_name_plural = 'Hoteles'

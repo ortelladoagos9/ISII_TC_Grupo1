@@ -2,15 +2,17 @@ from .pais import Pais
 from .provincia import Provincia
 from .localidad import Localidad
 from .direccion import Direccion
-from .viajero import Viajero
+from .viajero import Viajeros
 from .hotel import Hotel
-from .categoria import Categoria
-from .hotel_categoria import HotelCategoria
-from .servicio_hotel import ServicioHotel
-from .hotel_servicio import HotelServicio
-from .servicio_categoria_habitacion import ServicioCategoriaHabitacion
-from .categoria_servicio import CategoriaServicio
-from .disponibilidad_categoria import DisponibilidadCategoria
-from .estado_reserva import EstadoReserva
-from .reserva_hotel import ReservaHotel
-from .reserva_detalle import ReservaHotelDetalle
+from .categoria import Categorias
+from .hotel_categoria import Hoteles_Categorias
+from .servicios_hoteles import Servicios_Hoteles
+from .hotel_servicio import Hoteles_Servicios
+from .servicio_categoria_habitacion import Servicios_Categorias_Habitaciones
+from .categoria_servicio import Categorias_Servicios
+from .disponibilidad_categoria import Disponibilidad_Categorias
+from .estado_reserva import Estados_Reservas
+from .reserva_hotel import Reservas_Hoteles
+from .reservas_hoteles_detalles import Reservas_Hoteles_Detalles
+
+

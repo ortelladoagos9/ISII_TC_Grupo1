@@ -1,7 +1,6 @@
 from django.db import models
-from .direccion import Direccion
 
-class Viajero(models.Model):
+class Viajeros(models.Model):
     identificacion = models.CharField(max_length=20)
     nombre = models.CharField(max_length=100)
     apellido = models.CharField(max_length=100)
@@ -9,11 +8,13 @@ class Viajero(models.Model):
     email = models.EmailField()
     fecha_nacimiento = models.DateField()
     clave = models.CharField(max_length=128)
-    direccion = models.ForeignKey(Direccion, on_delete=models.CASCADE)
+    ID_direccion = models.ForeignKey("hotel.Direccion", on_delete=models.CASCADE)
+
+
+    class Meta:
+        db_table = 'Viajeros'
+        verbose_name = "Viajero"
+        verbose_name_plural = "Viajeros"
 
     def __str__(self):
         return f"{self.nombre} {self.apellido}"
-
-    class Meta:
-        verbose_name = "Viajero"
-        verbose_name_plural = "Viajeros"

@@ -14,5 +14,3 @@ from .disponibilidad_categoria import Disponibilidad_Categorias
 from .estado_reserva import Estados_Reservas
 from .reserva_hotel import Reservas_Hoteles
 from .reservas_hoteles_detalles import Reservas_Hoteles_Detalles
-
-

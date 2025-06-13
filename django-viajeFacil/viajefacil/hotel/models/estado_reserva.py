@@ -1,7 +1,6 @@
 from django.db import models
 
 class Estados_Reservas(models.Model):
-    ID_estado_reserva = models.AutoField(primary_key=True)
     descripcion_estado_reserva = models.CharField(max_length=100)
 
     def __str__(self):

@@ -1,7 +1,6 @@
 from django.db import models
 
 class Servicios_Hoteles(models.Model):
-    ID_servicio_hotel = models.AutoField(primary_key=True)
     nombre_servicio = models.CharField(max_length=100)
 
     def __str__(self):

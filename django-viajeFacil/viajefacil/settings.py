@@ -69,24 +69,10 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'viajefacil.wsgi.application'
 
-
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': 'viajefacil',
-#         'USER': 'root',
-#         'PASSWORD': '',
-#         'HOST': 'localhost',  
-#         'PORT': '3306',
-#         'OPTIONS': {
-#             'driver': 'ODBC Driver 17 for SQL Server',
-#         },
-#     }
-# }
-
+#SQL server
 ##DATABASES = {
 #    'default': {
 #       'ENGINE': 'mssql',
@@ -97,15 +83,9 @@ WSGI_APPLICATION = 'viajefacil.wsgi.application'
 #            'driver': 'ODBC Driver 17 for SQL Server',
 #        },
 #    }
-#}version de agos 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
-    }
-}
+#}
 
-
+#SQLite
 # DATABASES = {
 #     'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',

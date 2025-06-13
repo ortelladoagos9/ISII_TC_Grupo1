@@ -1,15 +1,14 @@
 from django.db import models
-from .pais import Pais
 from .localidad import Localidad
 
 class Direccion(models.Model):
-    pais = models.ForeignKey(Pais, on_delete=models.CASCADE)
+    calle_direccion = models.CharField(max_length=255)
+    numero_direccion = models.CharField(max_length=10)
+    cod_postal = models.CharField(max_length=10)
     localidad = models.ForeignKey(Localidad, on_delete=models.CASCADE)
-    calle = models.CharField(max_length=255)
-    numero = models.CharField(max_length=10)
-
+    
     def __str__(self):
-        return f"{self.calle} {self.numero}, {self.localidad}, {self.pais}"
+        return f"{self.calle_direccion} {self.numero_direccion}, {self.localidad}"
 
     class Meta:
         db_table = 'Direcciones'

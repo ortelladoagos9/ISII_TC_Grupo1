@@ -13,27 +13,27 @@ from .models import (
 # ========== UBICACIÓN ==========
 @admin.register(Pais)
 class PaisAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre']
+    list_display = ['nombre_pais']
     search_fields = ['nombre']
 
 
 @admin.register(Provincia)
 class ProvinciaAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre', 'pais']
+    list_display = ['nombre_provincia', 'pais']
     list_filter = ['pais']
     search_fields = ['nombre']
 
 
 @admin.register(Localidad)
 class LocalidadAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre', 'provincia']
+    list_display = ['nombre_localidad', 'provincia']
     list_filter = ['provincia']
     search_fields = ['nombre']
-
+        
 
 @admin.register(Direccion)
 class DireccionAdmin(admin.ModelAdmin):
-    list_display = ['id', 'calle', 'numero', 'get_cod_postal', 'localidad']
+    list_display = ['calle_direccion', 'numero_direccion', 'cod_postal', 'localidad']
     search_fields = ['calle', 'numero', 'localidad__cod_postal']
 
     def get_cod_postal(self, obj):
@@ -45,14 +45,14 @@ class DireccionAdmin(admin.ModelAdmin):
 # ========== VIAJERO ==========
 @admin.register(Viajeros)
 class ViajerosAdmin(admin.ModelAdmin):
-    list_display = ['id', 'nombre', 'apellido', 'email', 'telefono']
+    list_display = ['identificacion_viajero', 'nombre_viajero', 'apellido_viajero', 'email_viajero', 'telefono_viajero','fecha_nacimiento_viajero','clave_viajero','direccion']
     search_fields = ['nombre', 'apellido', 'email']
 
 
 # ========== HOTEL & CATEGORÍA ==========
 @admin.register(Hotel)
 class HotelAdmin(admin.ModelAdmin):
-    list_display = ['id_hotel', 'nombre_hotel', 'cantidad_estrellas_hotel', 'direccion_str']
+    list_display = ['ID_direccion', 'nombre_hotel', 'cantidad_estrellas_hotel','imagen_hotel']
     search_fields = ['nombre_hotel']
     list_filter = ['cantidad_estrellas_hotel']
 
@@ -80,7 +80,7 @@ class HotelAdmin(admin.ModelAdmin):
 
 @admin.register(Categorias)
 class CategoriasAdmin(admin.ModelAdmin):
-    list_display = ['ID_categoria', 'nombre_categoria', 'capacidad_categoria']
+    list_display = ['nombre_categoria', 'capacidad_categoria','descripcion_categoria']
     search_fields = ['nombre_categoria']
     list_filter = ['capacidad_categoria']
 
@@ -88,9 +88,9 @@ class CategoriasAdmin(admin.ModelAdmin):
 
 @admin.register(Hoteles_Categorias)
 class HotelesCategoriasAdmin(admin.ModelAdmin):
-    list_display = ['hotel_nombre', 'categoria_nombre']
-    list_filter = ['ID_hotel', 'ID_categoria']
-    search_fields = ['ID_hotel__nombre', 'ID_categoria__nombre']
+    list_display = ['hotel', 'categoria']
+    #list_filter = ['ID_hotel', 'ID_categoria']
+    #search_fields = ['ID_hotel__nombre', 'ID_categoria__nombre']
 
     def hotel_nombre(self, obj):
         return obj.ID_hotel.nombre
@@ -106,13 +106,13 @@ class HotelesCategoriasAdmin(admin.ModelAdmin):
 # ========== SERVICIOS ==========
 @admin.register(Servicios_Hoteles)
 class ServiciosHotelesAdmin(admin.ModelAdmin):
-    list_display = ['ID_servicio_hotel', 'nombre_servicio']
+    list_display = ['nombre_servicio']
     search_fields = ['nombre_servicio']
 
 @admin.register(Hoteles_Servicios)
 class HotelServicioAdmin(admin.ModelAdmin):
-    list_display = ['hotel_nombre', 'servicio_nombre']
-    list_filter = ['ID_hotel', 'ID_servicio_hotel']
+    list_display = ['hotel', 'servicio_hotel']
+    #list_filter = ['ID_hotel', 'ID_servicio_hotel']
 
     def hotel_nombre(self, obj):
         return obj.ID_hotel.nombre
@@ -128,7 +128,7 @@ class HotelServicioAdmin(admin.ModelAdmin):
 
 @admin.register(Servicios_Categorias_Habitaciones)
 class ServicioCategoriaHabitacionAdmin(admin.ModelAdmin):
-    list_display = ['servicio_nombre', 'categoria_nombre']
+    list_display = ['nombre_servicio']
 
     def servicio_nombre(self, obj):
         return obj.ID_servicio_hotel.nombre_servicio
@@ -145,8 +145,8 @@ class ServicioCategoriaHabitacionAdmin(admin.ModelAdmin):
 
 @admin.register(Categorias_Servicios)
 class CategoriasServiciosAdmin(admin.ModelAdmin):
-    list_display = ['categoria', 'servicio']
-    list_filter = ['ID_categoria', 'ID_servicio_hotel']
+    list_display = ['servicio_hotel', 'categoria']
+    ##list_filter = ['ID_categoria', 'ID_servicio_hotel']
 
     def categoria(self, obj):
         return obj.ID_categoria.nombre_categoria
@@ -159,12 +159,11 @@ class CategoriasServiciosAdmin(admin.ModelAdmin):
     servicio.short_description = 'Servicio'
 
 
-
 # ========== DISPONIBILIDAD ==========
 @admin.register(Disponibilidad_Categorias)
 class DisponibilidadCategoriaAdmin(admin.ModelAdmin):
     list_display = ['categoria_nombre', 'fecha', 'cantidad_disponible']
-    list_filter = ['ID_categoria', 'fecha']
+    #list_filter = ['ID_categoria', 'fecha']
 
     def categoria_nombre(self, obj):
         return obj.ID_categoria.nombre
@@ -178,7 +177,7 @@ class DisponibilidadCategoriaAdmin(admin.ModelAdmin):
 # ========== RESERVAS ==========
 @admin.register(Estados_Reservas)
 class EstadosReservasAdmin(admin.ModelAdmin):
-    list_display = ['id_estado', 'descripcion']
+    list_display = ['descripcion_estado_reserva']
 
     def id_estado(self, obj):
         return obj.ID_estado_reserva
@@ -194,9 +193,9 @@ class EstadosReservasAdmin(admin.ModelAdmin):
 
 @admin.register(Reservas_Hoteles)
 class ReservasHotelesAdmin(admin.ModelAdmin):
-    list_display = ['ID_reserva_hotel', 'get_viajero', 'fecha_reserva', 'fecha_ingreso', 'fecha_egreso', 'get_estado', 'monto_total_hotel']
-    list_filter = ['ID_estado_reserva', 'fecha_reserva']
-    search_fields = ['ID_viajero__nombre', 'ID_viajero__apellido']
+    list_display = ['monto_total_hotel', 'fecha_reserva', 'viajero','fecha_ingreso','fecha_egreso','estado_reserva']
+    ##list_filter = ['ID_estado_reserva', 'fecha_reserva']
+    ##search_fields = ['ID_viajero__nombre', 'ID_viajero__apellido']
 
     def get_viajero(self, obj):
         return f"{obj.ID_viajero.nombre} {obj.ID_viajero.apellido}"
@@ -213,9 +212,9 @@ class ReservasHotelesAdmin(admin.ModelAdmin):
 @admin.register(Reservas_Hoteles_Detalles)
 class ReservasHotelesDetallesAdmin(admin.ModelAdmin):
     list_display = ['reserva', 'categoria', 'cantidad_habitaciones', 'precio_unitario', 'sub_total']
-    list_filter = ['ID_categoria']
+    #list_filter = ['ID_categoria']
 
-    def reserva(self, obj):
+    def reserva(self, obj): 
         return str(obj.ID_reserva_hotel)
     reserva.admin_order_field = 'ID_reserva_hotel'
     reserva.short_description = 'Reserva'

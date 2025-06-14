@@ -93,6 +93,20 @@ WSGI_APPLICATION = 'viajefacil.wsgi.application'
 #     }
 # }
 
+DATABASES = {
+    'default': {
+        'ENGINE': 'mssql',
+        'NAME': 'viajefacil',
+        'HOST': 'DESKTOP-4Q7306R\\SQLEXPRESS', #Hay que modificar
+        'PORT': '',
+
+        'OPTIONS': {
+            'driver': 'ODBC Driver 18 for SQL Server',
+            'trusted_connection': 'yes',
+        },
+    }
+}
+
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators
 

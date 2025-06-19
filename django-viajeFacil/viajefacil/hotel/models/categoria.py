@@ -5,6 +5,7 @@ class Categorias(models.Model):
     descripcion_categoria = models.TextField(null=True, blank=True)
     capacidad_categoria = models.IntegerField()
     #imagen_categoria = models.ImageField(upload_to='/hotel/static/img', null=True, blank=True)
+    precio_categoria = models.FloatField()
 
     def __str__(self):
         return self.nombre_categoria

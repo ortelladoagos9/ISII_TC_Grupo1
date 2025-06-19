@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+{% block title %} Viaje Fácil {% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/lista_hoteles.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-2 ps-4 p-3">
+            {% include 'filtros_hoteles.html' %}
+            <!--Fin filtros-->
+        </div>
+        <!--Encabezado-->
+        <div class="col pt-4 ps-5 ">
+            <div class="row">
+                <!--Datos del hotel-->
+                <div class="row">
+                    <div class="col-4 pt-4">
+                        <img class="img-fluid rounded" src="{% static 'img/mardel.jpg' %}" alt="Mar del Plata">
+                    </div>
+                    <div class="col-6">
+                        <section class="ps-0 pt-4 hotel-list-section">
+                            <h2 class="fs-1">{{ hotel.nombre_hotel }}
+                            </h2>
+                            <i class="fst-normal fw-bold fs-3">
+                                {{hotel.cantidad_estrellas_hotel}}</i>
+                            <i class="bi bi-star-fill text-warning fs-2 pe-2"></i>
+                            <p class="fs-4">
+                                {{ hotel.descripcion_hotel }}
+                            </p>
+                            <p class="fs-4"><i class="bi bi-geo-alt-fill text-danger fs-3 pe-0"></i>
+                                {{hotel.Direccion}}
+                            </p>
+                        </section>
+                    </div>
+                    <div class="row mt-4 ms-2 mb-0">
+                        <p class="fs-3 fw-italic">
+                            El hotel ofrece:
+                        </p>
+                        {% for s in servicios %}
+                        <div class="col-3 mt-0 mb-3">
+                            <div style="background-color: #c8efc1;" class=" border border-transparent card h-100">
+                                <div class="card-body ">
+                                    <h5 class="card-title text-dark fs-6">
+                                        {{ s.nombre_servicio}}
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                <!--Card de las categorias del hotel -->
+                <div class="col-12 mt-3 mb-3">
+                    <h3 class="pb-3 fs-1">Habitaciones disponibles</h3>
+                    {% for cat in categorias %}
+                    <div class="card mb-3 me-5">
+                        {% if forloop.first %}
+                        <p style="background-color: #c8efc1;" class="fs-4 ps-3">
+                            <i class="bi bi-star-fill fs-3 pe-2 text-white"></i>
+                            Recomendado
+                        </p>
+                        {% endif %}
+                        <div class="row ">
+                            <div class="col-4">
+                                <img class="img-fluid rounded" src="{% static 'img/hab.png' %}" alt="habitacion">
+                            </div>
+                            <div class="col-4 card-body">
+                                <h5 class="card-title fs-4 fw-bold">
+                                    {{ cat.nombre_categoria }} {{ cat.descripcion_categoria }}
+                                </h5>
+                                {% if cat.capacidad_categoria == 1 %}
+                                <p class="card-text fs-4">
+                                    <i class="bi bi-person-fill fs-4 pe-1"></i>
+                                    {{ cat.capacidad_categoria }} persona en 1 habitación
+                                </p>
+                                {% else %}
+                                <p class="card-text fs-4">
+                                    <i class="bi bi-person-fill fs-4 pe-1"></i>
+                                    {{ cat.capacidad_categoria }} personas en 1 habitación
+                                </p>
+                                {% endif %}
+                                <p class="card-text fs-4 fw-bold">
+                                    <i class="bi bi-currency-dollar text-success fs-3 pe-0"></i>
+                                    {{ cat.precio_categoria }}
+                                </p>
+                                <p><strong>Servicios:</strong></p>
+                                <ul>
+                                    {% for servicio in cat.servicios %}
+                                    <li>{{ servicio.nombre_servicio }}</li>
+                                    {% empty %}
+                                    <li>No hay servicios asignados</li>
+                                    {% endfor %}
+                                </ul>
+
+                            </div>
+                            <div class="col-4 mt-5">
+                                <form method="post" action="{% url 'hotel:seleccionar_categoria' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="id_categoria" value="{{ cat.id }}">
+                                    <button type="submit" class="btn-lg border-3 btn btn-outline-success">Reservar ahora</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% endfor %}
+                    <!--Fin Card de los hoteles-->
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+
+
+    {% endblock %}
+
+
+
+    {% block script %}
+    <script>
+        const DESTINOS_API_URL = "{% url 'hotel:api_destinos' %}";
+    </script>
+    <script src="{% static 'js/lista_hoteles.js' %}"></script>
+    {% endblock %}

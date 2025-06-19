@@ -65,11 +65,11 @@
 }
 
 .container-filter-section {
-    display: flex;
+    /*display: flex;*/
     padding: 30px 50px;
     gap: 20px;
     background-color: #f8f8f0;
-    flex-wrap: wrap;
+    /*flex-wrap: wrap;*/
 }
   
 .filter-section {

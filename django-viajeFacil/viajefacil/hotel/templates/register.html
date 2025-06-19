@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        
+        <h2>Datos del Viajero</h2>
+        <form method="post">
+            {% csrf_token %}
+            
+            <div class="col-6">
+            <div class="mb-3">
+                <label for="identificacion" class="form-label">Identificación</label>
+            <input type="text" class="form-control" id="identificacion" name="identificacion_viajero" required>
+        </div>
+    </div>
+
+    <div class="mb-3">
+      <label for="nombre" class="form-label">Nombre</label>
+      <input type="text" class="form-control" id="nombre" name="nombre_viajero" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="apellido" class="form-label">Apellido</label>
+      <input type="text" class="form-control" id="apellido" name="apellido_viajero" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="telefono" class="form-label">Teléfono</label>
+      <input type="text" class="form-control" id="telefono" name="telefono_viajero">
+    </div>
+
+    <div class="mb-3">
+      <label for="email" class="form-label">Correo electrónico</label>
+      <input type="email" class="form-control" id="email" name="email_viajero" required>
+    </div>
+
+    <div class="mb-3">
+      <label for="fecha_nacimiento" class="form-label">Fecha de nacimiento</label>
+      <input type="date" class="form-control" id="fecha_nacimiento" name="fecha_nacimiento_viajero">
+    </div>
+
+    <div class="mb-3">
+      <label for="clave" class="form-label">Contraseña</label>
+      <input type="password" class="form-control" id="clave" name="clave_viajero" required>
+    </div>
+
+    <!-- Por ahora podés dejar la dirección como un campo oculto o nulo -->
+    <input type="hidden" name="direccion_id" value="1">
+
+    <button type="submit" class="btn btn-success">Finalizar reserva</button>
+  </form>
+</div>
+    </div>
+
+{% endblock %}

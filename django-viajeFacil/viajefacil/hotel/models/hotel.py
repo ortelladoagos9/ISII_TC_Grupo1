@@ -1,5 +1,7 @@
 from django.db import models
 from .direccion import Direccion
+from django.db import connection
+
 
 class Hotel(models.Model):
     nombre_hotel = models.CharField(max_length=100)
@@ -15,3 +17,4 @@ class Hotel(models.Model):
         db_table = 'Hoteles'
         verbose_name = 'Hotel'
         verbose_name_plural = 'Hoteles'
+

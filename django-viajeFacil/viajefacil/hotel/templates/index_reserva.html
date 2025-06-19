@@ -1,0 +1,359 @@
+{% extends 'base.html' %}
+
+{% load static %}
+
+
+{% block title %} Viaje Fácil {% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'css/lista_hoteles.css' %}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row mt-3">
+        <div style="background-color: #c8efc1;" class="col-7 mb-4 border rounded-4 border-transparent">
+            <div class="container mt-4">
+                <h2 class="fs-1">¡Ya casi estás! Completá tus datos y finalizá tu compra</h2>
+
+                    <form method="post" action="{% url 'hotel:guardar_datos_viajero' %}">
+
+                    {% csrf_token %}
+                    <p class="fs-2 mt-4">
+                        ¿Quién es titular de la reserva?
+                    </p>
+                    <p class="fs-5 mt-0">
+                        Será responsable de hacer el check-in y el check-out en el alojamiento
+                    </p>
+                    <div class="row">
+                        <div class="col-5">
+                            <div class="mb-3">
+                                <label for="nombre" class="form-label fs-5">Nombre<i
+                                        class="bi bi-asterisk fs-6 ps-2"></i></label>
+                                <input type="text" class="form-control border border-3 border-success" id="nombre"
+                                    name="nombre_viajero" required placeholder="Como figura en el documento"
+                                    required>
+                            </div>
+                        </div>
+                        <div class="col-5">
+                            <div class="mb-3">
+                                <label for="apellido" class="form-label fs-5">Apellido <i
+                                        class="bi bi-asterisk fs-6"></i></label>
+                                <input type="text" class="form-control border border-3 border-success" id="apellido"
+                                    name="apellido_viajero" required placeholder="Como figura en el documento"
+                                    required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row border">
+                        <div class="col-4">
+                            <label for="documentType" class="form-label fs-5">Tipo de documento:</label>
+                            <select class="form-select border border-3 border-success" id="documentType">
+                                <option value="dni">DNI</option>
+                                <option value="pasaporte">Pasaporte</option>
+                            </select>
+                        </div>
+                        <div class="col-6">
+                            <div class="mb-3">
+                                <label for="identificacion" class="form-label fs-5">Número <i
+                                        class="bi bi-asterisk fs-6"></i></label>
+                                <input type="text" class="form-control border border-3 border-success"
+                                    id="identificacion" name="identificacion_viajero" required>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="fs-2 mt-3">
+                        ¿A dónde enviamos tus vouchers?
+                    </p>
+                    <p class="fs-5 mt-0">
+                        El email que elijas será fundamental para que gestiones tu reserva y recibas información
+                        importante
+                        sobre tu
+                        viaje
+                    </p>
+                    <div class="row">
+                        <div class="col-4 mb-3">
+                            <label for="email" class="form-label fs-5">Email <i class="bi bi-asterisk fs-6"></i></label>
+                            <input type="email" class="form-control border border-3 border-success" id="email"
+                                name="email_viajero" required placeholder="Ingresa tu email" required>
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label for="email" class="form-label fs-5">Confirmá tu email <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="email" class="form-control border border-3 border-success" id="email"
+                                name="email_viajero_confir" required placeholder="Ingresa tu email" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+
+                        <p class="fs-2 mt-3">
+                            ¿A qué número podríamos contactarte?
+                        </p>
+                        <div class="col-3">
+                            <label for="phoneType" class="form-label fs-5 ">Teléfono:</label>
+                            <select class="form-select border border-3 border-success" id="phoneType">
+                                <option value="celular">Celular</option>
+                                <option value="particular">Particular</option>
+                            </select>
+                        </div>
+                        <div class="col-3">
+                            <label for="telefono" class="form-label fs-5">Código de país <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="telefono"
+                                name="codigo_pais" placeholder="Argentina (54)">
+                        </div>
+                        <div class="col-4 mb-3">
+                            <label for="telefono" class="form-label fs-5">Número <i
+                                    class="bi bi-asterisk fs-6"></i></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="telefono"
+                                name="telefono_viajero" placeholder="Ingresa tu número" required>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <p class="fs-2 mt-3 mb-1">
+                            ¿Cuándo naciste?
+                        </p>
+                        <div class="col-4">
+                            <div class="mb-3">
+                                <label for="fecha_nacimiento" class="form-label fs-5">Fecha de nacimiento <i
+                                        class="bi bi-asterisk fs-6"></i></label>
+                                <input type="date" class="form-control border border-3 border-success"
+                                    id="fecha_nacimiento" name="fecha_nacimiento_viajero" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p class="fs-2 mt-3 mb-1">
+                            ¿Donde vivís?
+                        </p>
+                        <div class="col-4">
+                            <label for="pais" class="form-label fs-5">País <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="pais"
+                                name="pais" placeholder="Argentina" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="provincia" class="form-label fs-5">Provincia <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="provincia"
+                                name="provincia" placeholder="Corrientes" required>
+                        </div>
+                        <div class="col-4">
+                            <label for="ciudad" class="form-label fs-5">Ciudad <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="ciudad"
+                                name="ciudad" placeholder="Corrientes" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-4 mt-2">
+                            <label for="codpostal" class="form-label fs-5">Cod. Postal <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="codpostal"
+                                name="codpostal" required>
+                        </div>
+                        <div class="col-4 mt-2">
+                            <label for="calle" class="form-label fs-5">Calle <i class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="calle"
+                                name="calle" required>
+                        </div>
+                        <div class="col-4 mt-2">
+                            <label for="numero" class="form-label fs-5">Número <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="numero"
+                                name="numero" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <p class="fs-2 mt-3 mb-1">
+                            ¿Qué contraseña elegís?
+                        </p>
+                        <div class="col-5 mt-2 mb-3">
+                            <label for="clave" class="form-label fs-5">Contraseña <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="password" class="form-control border border-3 border-success" id="clave"
+                                name="clave_viajero" required>
+                        </div>
+                        <div class="col-5 mt-2 mb-3">
+                            <label for="clave_confir" class="form-label fs-5">Confirmá tu contraseña <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="password" class="form-control border border-3 border-success" id="clave"
+                                name="clave_viajero_confir" required>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="fs-2 mt-3 mb-1">
+                                ¿Cómo querés pagar?
+                            </p>
+                            <div class="col-9 fs-5">
+                                <div class="form-check ">
+                                    <input class="form-check-input border border-3 border-success" type="radio"
+                                        name="paymentMethod" id="creditCard" value="Tarjeta de crédito">
+                                    <label class="form-check-label" for="creditCard">Tarjeta de crédito</label>
+                                </div>
+
+                                <div class="form-check">
+                                    <input class="form-check-input border border-3 border-success" type="radio"
+                                        name="paymentMethod" id="debin" value="DEBIN (Débito inmediato)">
+                                    <label class="form-check-label" for="debin">DEBIN (Débito inmediato)</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 mt-5">
+                            <div class="form-check">
+                                <input class="form-check-input border border-3 border-success" type="checkbox"
+                                    id="terms" required>
+                                <label class="form-check-label fs-5" for="terms">
+                                    Leí y acepto las condiciones de compra, políticas de privacidad y políticas de
+                                    cambios y
+                                    cancelaciones.
+                                </label>
+                            </div>
+
+                        </div>
+                        <div class="col-6 offset-5 pb-3 pt-3">
+                            <button type="submit" class="btn btn-success  fs-5">Finalizar
+                                reserva</button>
+                        </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-4 ms-5">
+        <div class="row">
+            <div class="col-12">
+                <p class="fs-3 ps-1 mt-3 mb-0">
+                    Detalle del pago
+                </p>
+            </div>
+            <div style="background-color: #c8efc1;" class="container border rounded-4 border-transparent">
+
+                <div class="row pt-3">
+                    <div class="col-8">
+                        <p class="fs-5">
+                            Alojamiento para {{ request.session.busqueda.cantidad_personas|default:1 }} personas
+                        </p>
+                    </div>
+                    <div class="col-4">
+                        <p class="fs-5">
+                            <i class="bi bi-currency-dollar fs-6 text-success"></i>
+                            {{ precio_reserva }}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <p class="fs-5">
+                            Impuestos y tasas 
+                        </p>
+                    </div>
+                    <div class="col-4">
+                        <p class="fs-5">
+                            <i class="bi bi-currency-dollar fs-6 text-success"></i>
+                            {{ impuestos }}
+                        </p>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-8">
+                        <p class="fs-5">
+                            Cargos
+                        </p>
+                    </div>
+                    <div class="col-4">
+                        <p class="fs-5">
+                            <i class="bi bi-currency-dollar fs-6 text-success"></i>
+                            {{ cargos }}
+                        </p>
+                    </div>
+                </div>
+                <div class="row border-top border-white border-3">
+                    <div class="col-7 pt-3">
+                        <p class="fs-4 fw-bold">TOTAL</p>
+                    </div>
+                    <div class="col-5 pt-3">
+                        <p class="fs-4 fw-bold ">
+                            <i class="bi bi-currency-dollar fs-4"></i>{{ precio_final}}
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <p class="fs-3 ps-2 mt-4 mb-0">
+                    Detalle de la compra
+                </p>
+                <div style="background-color: #c8efc1;" class="container border rounded-4 border-transparent">
+                    <div class="row">
+                        <div class="col-8 pt-2">
+                            <i class="bi bi-house-door fs-1"></i>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12">
+                            <p class="fs-5">
+                                <span class="fs-4">
+                                    {{ hotel.nombre_hotel }}
+                                </span>
+                                <br>
+                                {% for _ in estrellas %}
+                                <i class="bi bi-star-fill text-warning fs-5"></i>
+                                {% endfor %}
+                                <br>{{ hotel.Direccion }}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-6">
+                            <p class="fs-5">Check in
+                                <br><span class="fw-bold">{{ fecha_ingreso_fmt }}</span>
+                                <br>9:00 h
+                            </p>
+                        </div>
+                        <div class="col-6">
+                            <p class="fs-5">Check out
+                                <br><span class="fw-bold">{{ fecha_egreso_fmt }}</span>
+                                <br>10:00 h
+                            </p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col border-top border-white border-3">
+                            <p class="fs-5 pt-3">
+                                {{ cantidad_noches }} noches, {{ request.session.busqueda.cantidad_personas|default:1 }} adultos
+
+                                <br>{% for i in habitaciones_necesarias %}
+                                {{ categoria.nombre_categoria}} {{ categoria.descripcion_categoria}}
+                                <br>
+                                {% endfor %}
+
+                            </p>
+                        </div>
+                    </div>
+
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+    {% endblock %}
+
+    {% block script %}
+    <script>
+        const DESTINOS_API_URL = "{% url 'hotel:api_destinos' %}";
+    </script>
+    <script src="{% static 'js/lista_hoteles.js' %}"></script>
+    {% endblock %}

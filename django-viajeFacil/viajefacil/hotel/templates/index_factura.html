@@ -125,7 +125,8 @@
                 <tr>
                     <th>Categoría</th>
                     <th>Cantidad</th>
-                    <th>Precio unitario</th>
+                    <th>Precio por noche</th>
+                    <th>Cantidad de noches</th>
                     <th>Subtotal</th>
                 </tr>
             </thead>
@@ -135,25 +136,26 @@
                     <td>{{ detalle.categoria }}</td>
                     <td>{{ detalle.cantidad_habitaciones }}</td>
                     <td class="text-right">${{ detalle.precio_unitario|floatformat:0|intcomma }}</td>
+                    <td class="text-right"> {{ reserva.noches }}</td>
                     <td class="text-right">${{ detalle.sub_total|floatformat:0|intcomma }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
             <tfoot>
                 <tr class="factura-totales">
-                    <td colspan="3" class="text-right">Subtotal</td>
+                    <td colspan="4" class="text-right">Subtotal</td>
                     <td class="text-right">${{ subtotal|floatformat:0|intcomma }}</td>
                 </tr>
                 <tr class="factura-totales">
-                    <td colspan="3" class="text-right">Impuestos (21%)</td>
+                    <td colspan="4" class="text-right">Impuestos (21%)</td>
                     <td class="text-right">${{ impuestos|floatformat:0|intcomma }}</td>
                 </tr>
                 <tr class="factura-totales">
-                    <td colspan="3" class="text-right">Cargos (5%)</td>
+                    <td colspan="4" class="text-right">Cargos (5%)</td>
                     <td class="text-right">${{ cargos|floatformat:0|intcomma }}</td>
                 </tr>
                 <tr class="factura-totales">
-                    <td colspan="3" class="text-right">Total</td>
+                    <td colspan="4" class="text-right">Total</td>
                     <td class="text-right">${{ reserva.monto_total_reserva|floatformat:0|intcomma }}</td>
                 </tr>
             </tfoot>

@@ -18,5 +18,8 @@ urlpatterns = [
     path('confirmar-reserva/', views.procesar_reserva_completa, name='procesar_reserva'),
     path('factura/<int:id_reserva>/', views.ver_factura, name='ver_factura'),
     path('mis-reservas/<int:id_viajero>/', views.ver_reservas, name='ver_reservas'),
+    path('cancelar-reserva/', views.cancelar_reserva, name='cancelar_reserva'),
+    path('detalle-reserva/', views.detalle_reserva_hotel, name='detalle_reserva_hotel'),
+    path('comprobante-cancelacion/', views.generar_comprobante_cancelacion, name='generar_comprobante_cancelacion'),
     
 ]

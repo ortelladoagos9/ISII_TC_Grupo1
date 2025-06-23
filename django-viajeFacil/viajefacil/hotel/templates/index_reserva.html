@@ -364,7 +364,7 @@
                 { id: 'nombre', nombre: 'Nombre' },
                 { id: 'apellido', nombre: 'Apellido' },
                 { id: 'identificacion', nombre: 'Número de identificación' },
-                { id: 'email', nombre: 'Email' },
+                { id: 'email_viajero', nombre: 'Email' },
                 { id: 'codigo_pais', nombre: 'Código de país' },
                 { id: 'telefono', nombre: 'Número de teléfono' },
                 { id: 'fecha_nacimiento', nombre: 'Fecha de nacimiento' },
@@ -374,8 +374,6 @@
                 { id: 'codpostal', nombre: 'Código Postal' },
                 { id: 'calle', nombre: 'Calle' },
                 { id: 'numero', nombre: 'Número de calle' },
-                { id: 'clave', nombre: 'Contraseña' },
-                { id: 'clave_confir', nombre: 'Confirmación de contraseña' },
             ];
 
             let mensajeError = "";
@@ -421,12 +419,21 @@
                 }
             }
 
-            // Validación de coincidencia de contraseñas
-            const clave = document.getElementById('clave');
-            const clave_confir = document.getElementById('clave_confir');
-            if (clave && clave_confir && clave.value !== clave_confir.value) {
-                errores.push("• Las contraseñas no coinciden.");
+            // Validación de fecha de nacimiento (mayor de edad y no futura)
+            if (nacimiento && nacimiento.value) {
+                const fechaNac = new Date(nacimiento.value);
+                const hoy = new Date();
+
+                const hace18Anios = new Date(hoy.getFullYear() - 18, hoy.getMonth(), hoy.getDate());
+
+                if (fechaNac > hoy) {
+                    errores.push("• La fecha de nacimiento no puede ser en el futuro.");
+                } else if (fechaNac > hace18Anios) {
+                    errores.push("• Debés ser mayor de 18 años para realizar una reserva.");
+                }
             }
+
+
 
             // Validación de los términos
             const terms = document.getElementById('terms');

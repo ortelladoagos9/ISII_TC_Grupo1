@@ -1,4 +1,5 @@
 from django.db import connection
+from django.db import connection, DatabaseError
 
 
 def obtenerHoteles():
@@ -68,10 +69,10 @@ def ingresarDatos(identificacion, nombre, apellido, telefono, email, fecha_nacim
         row = cursor.fetchone()
         return row[0] if row else None
 
-def insertarCabeceraReservaHotel(monto_total,fecha_reserva,fecha_ingreso,fecha_egreso,estado_reserva_id,viajero_id):
+def insertarCabeceraReservaHotel(monto_total,fecha_reserva,fecha_ingreso,fecha_egreso,estado_reserva_id,viajero_id,hotel_id):
     with connection.cursor() as cursor:
-        cursor.execute("EXEC insertarCabeceraReservaHotel %s, %s, %s, %s, %s, %s", 
-                       [monto_total,fecha_reserva,fecha_ingreso,fecha_egreso,estado_reserva_id,viajero_id])
+        cursor.execute("EXEC insertarCabeceraReservaHotel %s, %s, %s, %s, %s, %s,%s", 
+                       [monto_total,fecha_reserva,fecha_ingreso,fecha_egreso,estado_reserva_id,viajero_id,hotel_id])
         row = cursor.fetchone()
         return row[0] if row else None  # Devuelve solo el ID o None
 
@@ -112,3 +113,53 @@ def generarFactura(id_reserva):
 
     return resultados
 
+def obtenerReservas(id_viajero):
+    with connection.cursor() as cursor:
+        cursor.execute("EXEC obtenerReservas %s", [id_viajero])
+        columnas = [col[0] for col in cursor.description]
+        return [dict(zip(columnas, fila)) for fila in cursor.fetchall()]
+      
+def cancelarReserva(id_reserva):
+    try:
+        with connection.cursor() as cursor:
+            cursor.execute("EXEC cancelarReserva %s", [id_reserva])
+    except DatabaseError as e:
+        raise Exception("No se pudo cancelar la reserva: " + str(e))
+     
+def mostrarDetalleReserva(id_reserva):
+    resultados = {
+        'viajero': [],
+        'reserva': [],
+        'hotel': [],
+        'detalle': []
+    }
+
+    with connection.cursor() as cursor:
+        cursor.execute("EXEC generarFactura %s", [id_reserva])
+
+        #  Datos del viajero
+        columnas = [col[0] for col in cursor.description]
+        resultados['viajero'] = [dict(zip(columnas, row)) for row in cursor.fetchall()]
+
+        #  Datos de la cabecera de la reserva
+        cursor.nextset()
+        columnas = [col[0] for col in cursor.description]
+        resultados['reserva'] = [dict(zip(columnas, row)) for row in cursor.fetchall()]
+
+        # Datos del hotel
+        cursor.nextset()
+        columnas = [col[0] for col in cursor.description]
+        resultados['hotel'] = [dict(zip(columnas, row)) for row in cursor.fetchall()]
+
+        # Datos del detalle de reserva
+        cursor.nextset()
+        columnas = [col[0] for col in cursor.description]
+        resultados['detalle'] = [dict(zip(columnas, row)) for row in cursor.fetchall()]
+
+    return resultados
+
+def generarComprobanteCancelacion(id_reserva):
+     with connection.cursor() as cursor:
+        cursor.execute("EXEC generarComprobanteCancelacion %s", [id_reserva])
+        columnas = [col[0] for col in cursor.description]
+        return [dict(zip(columnas, fila)) for fila in cursor.fetchall()]

@@ -6,13 +6,14 @@ from django.db import connection
 from datetime import datetime
 import locale
 from decimal import Decimal, ROUND_HALF_UP
-from datetime import date
+from django.contrib import messages
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.template.loader import get_template
 from itertools import combinations_with_replacement
 from .utils import obtenerHoteles,buscarHotel,mostrarHabitacionesHotel,mostrarServiciosHotel,mostrarServiciosCategorias,buscarHotelPorId,ingresarDatos
-from .utils import verificarOCrearDireccion,ingresarDatos,insertarCabeceraReservaHotel,insertarDetalleReservaHotel,generarFactura
+from .utils import verificarOCrearDireccion,ingresarDatos,insertarCabeceraReservaHotel,insertarDetalleReservaHotel,generarFactura,obtenerReservas
+from .utils import cancelarReserva,generarComprobanteCancelacion
 
 def index_alojamientos (request):
     return render (request, 'index_alojamientos.html')
@@ -350,6 +351,9 @@ def insertar_cabecera_reserva(request):
     # Obtener datos de cabecera
     monto_total = request.session.get('precio_final', '0')
     
+    #Obtenemos el id hotel
+    hotel_id = request.session.get('id_hotel')
+    
     # Estado: será 1 (Confirmada)
     estado_id = 1 
     #Fecha del dia de la reserva
@@ -363,7 +367,7 @@ def insertar_cabecera_reserva(request):
     id_viajero = request.session['id_viajero']
 
     #Generamos la cabecera de la reserva
-    id_cabecera_reserva=insertarCabeceraReservaHotel(monto_total,fecha_reserva,fecha_ingreso,fecha_egreso,estado_id,id_viajero)
+    id_cabecera_reserva=insertarCabeceraReservaHotel(monto_total,fecha_reserva,fecha_ingreso,fecha_egreso,estado_id,id_viajero,hotel_id)
     
     #Devolvemos el id
     return id_cabecera_reserva
@@ -455,8 +459,7 @@ def ver_factura(request, id_reserva):
             'cargos': cargos,
         }
         
-        #email_viajero = request.POST.get('email_viajero')
-        email_viajero= 'carlosdaniel313@gmail.com'
+        email_viajero = "carlosdaniel313@gmail.com"
         enviar_factura_por_correo(request, id_reserva, email_viajero)
 
 
@@ -498,7 +501,70 @@ def enviar_factura_por_correo(request, id_reserva, email_destino):
     except Exception as e:
         print("❌ Error al enviar el correo:", e)
 
-
 def ver_reservas(request,id_viajero):
+
+    try:
+        reservas = obtenerReservas(id_viajero)
+    except Exception as e:
+        print("❌ Error al obtener reservas:", e)
+        reservas = []
+
+    return render(request, 'mis_reservas.html', {'reservas': reservas})
+
+def cancelar_reserva(request):
+    id_reserva = request.POST.get('id_reserva')
+    id_viajero = request.POST.get('id_viajero')
     
-     return render(request, 'mis_reservas.html')
+    print("Id viajero",id_viajero) 
+
+    if not id_reserva or not id_viajero:
+        messages.error(request, "No se pudo cancelar la reserva. ID no válido.")
+        return redirect('hotel:ver_reservas', id_viajero=1) 
+    try:
+        cancelarReserva(int(id_reserva))
+        messages.success(request, "Cancelación Exitosa")
+    except Exception as e:
+        print(" Error al cancelar reserva:", e)
+        messages.warning(request, "No se puede cancelar la reserva con menos de 2 días de anticipación.")
+
+    return redirect('hotel:ver_reservas', id_viajero=id_viajero)
+
+def detalle_reserva_hotel(request):
+    
+    id_reserva = request.POST.get('id_reserva')
+    try:
+        factura = generarFactura(id_reserva)
+
+        # Extraer datos clave
+        reserva = factura['reserva'][0]
+        monto_total = reserva['monto_total_reserva']
+
+        # Calcular componentes del total
+        subtotal = (monto_total / Decimal('1.26')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        impuestos = (subtotal * Decimal('0.21')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        cargos = (subtotal * Decimal('0.05')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+        contexto = {
+            'viajero': factura['viajero'][0],
+            'reserva': reserva,
+            'hotel': factura['hotel'][0],
+            'detalle': factura['detalle'],
+            'subtotal': subtotal,
+            'impuestos': impuestos,
+            'cargos': cargos,
+        }
+        
+    
+        return render(request, 'detalle_Reserva.html', contexto)
+
+    except Exception as e:
+        print(f"❌ Error al generar factura: {e}")
+        return render(request, 'detalle_reserva.html', {
+            'error': 'No se pudo generar la factura.'
+        })
+
+def generar_comprobante_cancelacion(request,):
+    id_reserva = request.POST.get('id_reserva')
+    comprobante = generarComprobanteCancelacion(id_reserva)
+    print("COmprobante",comprobante)
+    return render(request, 'comprobante_cancelacion.html', comprobante[0])

@@ -15,7 +15,7 @@
                 <h1 class="fs-1 px-3 mb-3">Encuentra tu próximo destino</h1>
                 <p class="px-3 h4 mb-4">Busca ofertas de hoteles, vuelos y mucho más...</p>
                 <div class="container p-3 pt-1">
-                    <form class="row gx-2 gy-3 align-items-end" method="get"
+                    <form id="form-buscador" class="row gx-2 gy-3 align-items-end" method="get"
                         action="{% url 'hotel:hoteles_por_destino' %}">
                         <!-- Destino  -->
                         <div class="col-12 col-md-5 position-relative">
@@ -145,6 +145,21 @@ document.querySelector('form').addEventListener('submit', function (e) {
     formulario.submit();
 
 });
+
+
+document.addEventListener('DOMContentLoaded', function () {
+    const form = document.getElementById('form-buscador');
+    const destinoInput = document.getElementById('destino');
+
+    form.addEventListener('submit', function (e) {
+        const valorDestino = destinoInput.value.trim();
+        if (!valorDestino) {
+            e.preventDefault(); // evita el envío del formulario
+            alert("Por favor seleccioná un destino válido de la lista");
+        }
+    });
+});
+
 
 
 </script>

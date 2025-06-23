@@ -18,8 +18,7 @@
             <div class="container mt-4">
                 <h2 class="fs-1">¡Ya casi estás! Completá tus datos y finalizá tu compra</h2>
 
-                    <form method="post" action="{% url 'hotel:guardar_datos_viajero' %}">
-
+                <form id="form-reserva" method="post" action="{% url 'hotel:procesar_reserva' %}">
                     {% csrf_token %}
                     <p class="fs-2 mt-4">
                         ¿Quién es titular de la reserva?
@@ -33,8 +32,7 @@
                                 <label for="nombre" class="form-label fs-5">Nombre<i
                                         class="bi bi-asterisk fs-6 ps-2"></i></label>
                                 <input type="text" class="form-control border border-3 border-success" id="nombre"
-                                    name="nombre_viajero" required placeholder="Como figura en el documento"
-                                    required>
+                                    name="nombre_viajero" placeholder="Como figura en el documento">
                             </div>
                         </div>
                         <div class="col-5">
@@ -42,8 +40,7 @@
                                 <label for="apellido" class="form-label fs-5">Apellido <i
                                         class="bi bi-asterisk fs-6"></i></label>
                                 <input type="text" class="form-control border border-3 border-success" id="apellido"
-                                    name="apellido_viajero" required placeholder="Como figura en el documento"
-                                    required>
+                                    name="apellido_viajero" placeholder="Como figura en el documento">
                             </div>
                         </div>
                     </div>
@@ -59,8 +56,8 @@
                             <div class="mb-3">
                                 <label for="identificacion" class="form-label fs-5">Número <i
                                         class="bi bi-asterisk fs-6"></i></label>
-                                <input type="text" class="form-control border border-3 border-success"
-                                    id="identificacion" name="identificacion_viajero" required>
+                                <input type="number" class="form-control border border-3 border-success"
+                                    id="identificacion" name="identificacion_viajero">
                             </div>
                         </div>
                     </div>
@@ -74,16 +71,10 @@
                         viaje
                     </p>
                     <div class="row">
-                        <div class="col-4 mb-3">
+                        <div class="col-6 mb-3">
                             <label for="email" class="form-label fs-5">Email <i class="bi bi-asterisk fs-6"></i></label>
-                            <input type="email" class="form-control border border-3 border-success" id="email"
-                                name="email_viajero" required placeholder="Ingresa tu email" required>
-                        </div>
-                        <div class="col-4 mb-3">
-                            <label for="email" class="form-label fs-5">Confirmá tu email <i
-                                    class="bi bi-asterisk fs-6"></i></label>
-                            <input type="email" class="form-control border border-3 border-success" id="email"
-                                name="email_viajero_confir" required placeholder="Ingresa tu email" required>
+                            <input type="text" class="form-control border border-3 border-success" id="email_viajero"
+                                name="email_viajero" placeholder="Ingresa tu email" required>
                         </div>
                     </div>
 
@@ -102,14 +93,14 @@
                         <div class="col-3">
                             <label for="telefono" class="form-label fs-5">Código de país <i
                                     class="bi bi-asterisk fs-6"></i></label>
-                            <input type="text" class="form-control border border-3 border-success" id="telefono"
+                            <input type="number" class="form-control border border-3 border-success" id="codigo_pais"
                                 name="codigo_pais" placeholder="Argentina (54)">
                         </div>
                         <div class="col-4 mb-3">
                             <label for="telefono" class="form-label fs-5">Número <i
                                     class="bi bi-asterisk fs-6"></i></i></label>
-                            <input type="text" class="form-control border border-3 border-success" id="telefono"
-                                name="telefono_viajero" placeholder="Ingresa tu número" required>
+                            <input type="number" class="form-control border border-3 border-success" id="telefono"
+                                name="telefono_viajero" placeholder="Ingresa tu número">
                         </div>
                     </div>
 
@@ -121,8 +112,8 @@
                             <div class="mb-3">
                                 <label for="fecha_nacimiento" class="form-label fs-5">Fecha de nacimiento <i
                                         class="bi bi-asterisk fs-6"></i></label>
-                                <input type="date" class="form-control border border-3 border-success"
-                                    id="fecha_nacimiento" name="fecha_nacimiento_viajero" required>
+                                <input type="date" class="form-control border border-3 border-success fs-5"
+                                    id="fecha_nacimiento" name="fecha_nacimiento_viajero">
                             </div>
                         </div>
                     </div>
@@ -131,22 +122,21 @@
                             ¿Donde vivís?
                         </p>
                         <div class="col-4">
-                            <label for="pais" class="form-label fs-5">País <i
-                                    class="bi bi-asterisk fs-6"></i></label>
-                            <input type="text" class="form-control border border-3 border-success" id="pais"
-                                name="pais" placeholder="Argentina" required>
+                            <label for="pais" class="form-label fs-5">País <i class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="pais" name="pais"
+                                placeholder="Argentina">
                         </div>
                         <div class="col-4">
                             <label for="provincia" class="form-label fs-5">Provincia <i
                                     class="bi bi-asterisk fs-6"></i></label>
                             <input type="text" class="form-control border border-3 border-success" id="provincia"
-                                name="provincia" placeholder="Corrientes" required>
+                                name="provincia" placeholder="Corrientes">
                         </div>
                         <div class="col-4">
-                            <label for="ciudad" class="form-label fs-5">Ciudad <i
+                            <label for="localidad" class="form-label fs-5">Localidad <i
                                     class="bi bi-asterisk fs-6"></i></label>
-                            <input type="text" class="form-control border border-3 border-success" id="ciudad"
-                                name="ciudad" placeholder="Corrientes" required>
+                            <input type="text" class="form-control border border-3 border-success" id="localidad"
+                                name="localidad" placeholder="Corrientes">
                         </div>
                     </div>
                     <div class="row">
@@ -154,206 +144,306 @@
                             <label for="codpostal" class="form-label fs-5">Cod. Postal <i
                                     class="bi bi-asterisk fs-6"></i></label>
                             <input type="text" class="form-control border border-3 border-success" id="codpostal"
-                                name="codpostal" required>
+                                name="codpostal">
                         </div>
                         <div class="col-4 mt-2">
                             <label for="calle" class="form-label fs-5">Calle <i class="bi bi-asterisk fs-6"></i></label>
                             <input type="text" class="form-control border border-3 border-success" id="calle"
-                                name="calle" required>
+                                name="calle">
                         </div>
                         <div class="col-4 mt-2">
                             <label for="numero" class="form-label fs-5">Número <i
                                     class="bi bi-asterisk fs-6"></i></label>
                             <input type="text" class="form-control border border-3 border-success" id="numero"
-                                name="numero" required>
+                                name="numero">
                         </div>
                     </div>
-                    <div class="row">
-                        <p class="fs-2 mt-3 mb-1">
-                            ¿Qué contraseña elegís?
-                        </p>
-                        <div class="col-5 mt-2 mb-3">
-                            <label for="clave" class="form-label fs-5">Contraseña <i
-                                    class="bi bi-asterisk fs-6"></i></label>
-                            <input type="password" class="form-control border border-3 border-success" id="clave"
-                                name="clave_viajero" required>
-                        </div>
-                        <div class="col-5 mt-2 mb-3">
-                            <label for="clave_confir" class="form-label fs-5">Confirmá tu contraseña <i
-                                    class="bi bi-asterisk fs-6"></i></label>
-                            <input type="password" class="form-control border border-3 border-success" id="clave"
-                                name="clave_viajero_confir" required>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
-                            <p class="fs-2 mt-3 mb-1">
-                                ¿Cómo querés pagar?
-                            </p>
-                            <div class="col-9 fs-5">
-                                <div class="form-check ">
-                                    <input class="form-check-input border border-3 border-success" type="radio"
-                                        name="paymentMethod" id="creditCard" value="Tarjeta de crédito">
-                                    <label class="form-check-label" for="creditCard">Tarjeta de crédito</label>
-                                </div>
 
-                                <div class="form-check">
-                                    <input class="form-check-input border border-3 border-success" type="radio"
-                                        name="paymentMethod" id="debin" value="DEBIN (Débito inmediato)">
-                                    <label class="form-check-label" for="debin">DEBIN (Débito inmediato)</label>
-                                </div>
-                            </div>
+                    <div class="row mt-4">
+                        <p class="fs-2 mt-3 mb-1">
+                            ¿Cómo querés pagar?
+                        </p>
+                        <div class="col-6">
+                            <label for="nro_tarjeta" class="form-label fs-5">Número de la tarjeta <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="nro_tarjeta"
+                                name="nro_tarjeta" required pattern="^\d{15,19}$"
+                                title="Debe tener entre 15 y 19 dígitos numéricos.">
+                        </div>
+                        <div class="col-3">
+                            <label for="cod_seguridad" class="form-label fs-5">Cod. Seguridad <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="cod_seguridad"
+                                name="cod_seguridad" required pattern="^\d{3}$"
+                                title="Debe tener exactamente 3 dígitos.">
+                        </div>
+                        <div class="col-3">
+                            <label for="vencimiento_tarjeta" class="form-label fs-5">Vencimiento <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success"
+                                id="vencimiento_tarjeta" name="vencimiento_tarjeta" required
+                                pattern="^(0[1-9]|1[0-2])([0-9]{2})$" title="Formato válido: MMYY (ejemplo: 0426).">
+                        </div>
+                    </div>
+                    <div class="row mt-4">
+                        <div class="col-6">
+                            <label for="nombre_titular" class="form-label fs-5">Nombre titular <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="nombre"
+                                name="nombre_viajero" required pattern="^[A-Za-zÁÉÍÓÚáéíóúÑñ ]+$"
+                                title="Solo se permiten letras y espacios.">
+                        </div>
+                        <div class="col-6">
+                            <label for="dni_titular" class="form-label fs-5">DNI titular <i
+                                    class="bi bi-asterisk fs-6"></i></label>
+                            <input type="text" class="form-control border border-3 border-success" id="identificacion"
+                                name="identificacion_viajero" required pattern="^\d{6,8}$"
+                                title="Debe tener entre 6 y 8 dígitos." inputmode="numeric">
+
                         </div>
                     </div>
                     <div class="row">
                         <div class="col-12 mt-5">
                             <div class="form-check">
                                 <input class="form-check-input border border-3 border-success" type="checkbox"
-                                    id="terms" required>
+                                    id="terms">
                                 <label class="form-check-label fs-5" for="terms">
                                     Leí y acepto las condiciones de compra, políticas de privacidad y políticas de
                                     cambios y
                                     cancelaciones.
                                 </label>
                             </div>
-
                         </div>
                         <div class="col-6 offset-5 pb-3 pt-3">
-                            <button type="submit" class="btn btn-success  fs-5">Finalizar
-                                reserva</button>
-                        </div>
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-success fs-5">Finalizar reserva</button>
                 </form>
+
             </div>
         </div>
     </div>
+</div>
 
-    <div class="col-4 ms-5">
-        <div class="row">
-            <div class="col-12">
-                <p class="fs-3 ps-1 mt-3 mb-0">
-                    Detalle del pago
-                </p>
+<div class="col-4 ms-5">
+    <div class="row">
+        <div class="col-12">
+            <p class="fs-3 ps-1 mt-3 mb-0">
+                Detalle del pago
+            </p>
+        </div>
+        <div style="background-color: #c8efc1;" class="container border rounded-4 border-transparent">
+
+            <div class="row pt-3">
+                <div class="col-8">
+                    <p class="fs-5">
+                        Alojamiento para {{ request.session.busqueda.cantidad_personas|default:1 }} personas
+                    </p>
+                </div>
+                <div class="col-4">
+                    <p class="fs-5">
+                        <i class="bi bi-currency-dollar fs-6 text-success"></i>
+                        {{ precio_reserva }}
+                    </p>
+                </div>
             </div>
+            <div class="row">
+                <div class="col-8">
+                    <p class="fs-5">
+                        Impuestos y tasas
+                    </p>
+                </div>
+                <div class="col-4">
+                    <p class="fs-5">
+                        <i class="bi bi-currency-dollar fs-6 text-success"></i>
+                        {{ impuestos }}
+                    </p>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-8">
+                    <p class="fs-5">
+                        Cargos
+                    </p>
+                </div>
+                <div class="col-4">
+                    <p class="fs-5">
+                        <i class="bi bi-currency-dollar fs-6 text-success"></i>
+                        {{ cargos }}
+                    </p>
+                </div>
+            </div>
+            <div class="row border-top border-white border-3">
+                <div class="col-7 pt-3">
+                    <p class="fs-4 fw-bold">TOTAL</p>
+                </div>
+                <div class="col-5 pt-3">
+                    <p class="fs-4 fw-bold ">
+                        <i class="bi bi-currency-dollar fs-4"></i>{{ precio_final}}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+    <div class="row">
+        <div class="col-12">
+            <p class="fs-3 ps-2 mt-4 mb-0">
+                Detalle de la compra
+            </p>
             <div style="background-color: #c8efc1;" class="container border rounded-4 border-transparent">
-
-                <div class="row pt-3">
-                    <div class="col-8">
-                        <p class="fs-5">
-                            Alojamiento para {{ request.session.busqueda.cantidad_personas|default:1 }} personas
-                        </p>
+                <div class="row">
+                    <div class="col-8 pt-2">
+                        <i class="bi bi-house-door fs-1"></i>
                     </div>
-                    <div class="col-4">
+                </div>
+                <div class="row">
+                    <div class="col-12">
                         <p class="fs-5">
-                            <i class="bi bi-currency-dollar fs-6 text-success"></i>
-                            {{ precio_reserva }}
+                            <span class="fs-4">
+                                {{ hotel.nombre_hotel }}
+                            </span>
+                            <br>
+                            {% for _ in estrellas %}
+                            <i class="bi bi-star-fill text-warning fs-5"></i>
+                            {% endfor %}
+                            <br>{{ hotel.Direccion }}
                         </p>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-8">
-                        <p class="fs-5">
-                            Impuestos y tasas 
+                    <div class="col-6">
+                        <p class="fs-5">Check in
+                            <br><span class="fw-bold">{{ fecha_ingreso_fmt }}</span>
+                            <br>9:00 h
                         </p>
                     </div>
-                    <div class="col-4">
-                        <p class="fs-5">
-                            <i class="bi bi-currency-dollar fs-6 text-success"></i>
-                            {{ impuestos }}
+                    <div class="col-6">
+                        <p class="fs-5">Check out
+                            <br><span class="fw-bold">{{ fecha_egreso_fmt }}</span>
+                            <br>10:00 h
                         </p>
                     </div>
                 </div>
                 <div class="row">
-                    <div class="col-8">
-                        <p class="fs-5">
-                            Cargos
-                        </p>
-                    </div>
-                    <div class="col-4">
-                        <p class="fs-5">
-                            <i class="bi bi-currency-dollar fs-6 text-success"></i>
-                            {{ cargos }}
-                        </p>
-                    </div>
-                </div>
-                <div class="row border-top border-white border-3">
-                    <div class="col-7 pt-3">
-                        <p class="fs-4 fw-bold">TOTAL</p>
-                    </div>
-                    <div class="col-5 pt-3">
-                        <p class="fs-4 fw-bold ">
-                            <i class="bi bi-currency-dollar fs-4"></i>{{ precio_final}}
+                    <div class="col border-top border-white border-3">
+                        <p class="fs-5 pt-3">
+
+                            {{ cantidad_noches }} noches, {{ personas }}
+                            personas
+                            <br>
+                            {% for hab in combinacion %}
+                            {{ hab.nombre_categoria }} {{ hab.descripcion_categoria }}<br>
+                            {% endfor %}
+
                         </p>
                     </div>
                 </div>
-            </div>
-
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <p class="fs-3 ps-2 mt-4 mb-0">
-                    Detalle de la compra
-                </p>
-                <div style="background-color: #c8efc1;" class="container border rounded-4 border-transparent">
-                    <div class="row">
-                        <div class="col-8 pt-2">
-                            <i class="bi bi-house-door fs-1"></i>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-12">
-                            <p class="fs-5">
-                                <span class="fs-4">
-                                    {{ hotel.nombre_hotel }}
-                                </span>
-                                <br>
-                                {% for _ in estrellas %}
-                                <i class="bi bi-star-fill text-warning fs-5"></i>
-                                {% endfor %}
-                                <br>{{ hotel.Direccion }}
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-6">
-                            <p class="fs-5">Check in
-                                <br><span class="fw-bold">{{ fecha_ingreso_fmt }}</span>
-                                <br>9:00 h
-                            </p>
-                        </div>
-                        <div class="col-6">
-                            <p class="fs-5">Check out
-                                <br><span class="fw-bold">{{ fecha_egreso_fmt }}</span>
-                                <br>10:00 h
-                            </p>
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col border-top border-white border-3">
-                            <p class="fs-5 pt-3">
-                                {{ cantidad_noches }} noches, {{ request.session.busqueda.cantidad_personas|default:1 }} adultos
-
-                                <br>{% for i in habitaciones_necesarias %}
-                                {{ categoria.nombre_categoria}} {{ categoria.descripcion_categoria}}
-                                <br>
-                                {% endfor %}
-
-                            </p>
-                        </div>
-                    </div>
 
 
-                </div>
             </div>
         </div>
     </div>
+</div>
 
 
 
-    {% endblock %}
+{% endblock %}
 
-    {% block script %}
-    <script>
-        const DESTINOS_API_URL = "{% url 'hotel:api_destinos' %}";
-    </script>
-    <script src="{% static 'js/lista_hoteles.js' %}"></script>
-    {% endblock %}
+{% block script %}
+<script>
+    const DESTINOS_API_URL = "{% url 'hotel:api_destinos' %}";
+</script>
+<script src="{% static 'js/lista_hoteles.js' %}"></script>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const form = document.getElementById('form-reserva');
+
+        form.addEventListener('submit', function (e) {
+            const campos = [
+                { id: 'nombre', nombre: 'Nombre' },
+                { id: 'apellido', nombre: 'Apellido' },
+                { id: 'identificacion', nombre: 'Número de identificación' },
+                { id: 'email', nombre: 'Email' },
+                { id: 'codigo_pais', nombre: 'Código de país' },
+                { id: 'telefono', nombre: 'Número de teléfono' },
+                { id: 'fecha_nacimiento', nombre: 'Fecha de nacimiento' },
+                { id: 'pais', nombre: 'País' },
+                { id: 'provincia', nombre: 'Provincia' },
+                { id: 'localidad', nombre: 'Localidad' },
+                { id: 'codpostal', nombre: 'Código Postal' },
+                { id: 'calle', nombre: 'Calle' },
+                { id: 'numero', nombre: 'Número de calle' },
+                { id: 'clave', nombre: 'Contraseña' },
+                { id: 'clave_confir', nombre: 'Confirmación de contraseña' },
+            ];
+
+            let mensajeError = "";
+            let errores = [];
+
+            for (const campo of campos) {
+                const input = document.getElementById(campo.id);
+                if (!input || !input.value.trim()) {
+                    errores.push(`• El campo "${campo.nombre}" es obligatorio.`);
+                }
+            }
+            // Validación personalizada del correo electrónico
+            const email = document.getElementById('email_viajero');
+            if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.value)) {
+                errores.push("• El correo debe tener el siguiente formato: ejemplo@dominio.com");
+            }
+
+            // Validación personalizada del DNI
+            const dni = document.getElementById('identificacion');
+            if (dni && (dni.value.length < 6 || dni.value.length > 8)) {
+                errores.push("• El número de DNI debe tener entre 6 y 8 dígitos.");
+            }
+
+            // Validación del teléfono
+            // Validación del teléfono (con código de país)
+            const codigoPais = document.getElementById('codigo_pais');
+            const telefono = document.getElementById('telefono');
+            if (codigoPais && telefono) {
+                const numCompleto = (codigoPais.value + telefono.value).replace(/\D/g, ''); // eliminamos cualquier caracter no numérico
+                if (numCompleto.length < 5 || numCompleto.length > 15) {
+                    errores.push("• El número de teléfono es inválido.");
+                }
+            }
+
+            // Validación de la fecha de nacimiento (no más de 100 años atrás)
+            const nacimiento = document.getElementById('fecha_nacimiento');
+            if (nacimiento && nacimiento.value) {
+                const fechaNac = new Date(nacimiento.value);
+                const hoy = new Date();
+                const hace100Anios = new Date(hoy.getFullYear() - 100, hoy.getMonth(), hoy.getDate());
+                if (fechaNac < hace100Anios) {
+                    errores.push("• La fecha de nacimiento no puede ser mayor a 100 años.");
+                }
+            }
+
+            // Validación de coincidencia de contraseñas
+            const clave = document.getElementById('clave');
+            const clave_confir = document.getElementById('clave_confir');
+            if (clave && clave_confir && clave.value !== clave_confir.value) {
+                errores.push("• Las contraseñas no coinciden.");
+            }
+
+            // Validación de los términos
+            const terms = document.getElementById('terms');
+            if (!terms.checked) {
+                errores.push("• Debe aceptar las condiciones de compra.");
+            }
+
+            // Mostrar errores si hay
+            if (errores.length > 0) {
+                e.preventDefault();
+                alert("Error: hay datos incorrectos o hay algún campo vacío.\n\n" + errores.join("\n"));
+            }
+        });
+    });
+
+</script>
+
+
+
+{% endblock %}

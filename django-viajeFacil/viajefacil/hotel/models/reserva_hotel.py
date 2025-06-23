@@ -7,6 +7,8 @@ class Reservas_Hoteles(models.Model):
     fecha_egreso = models.DateField()
     viajero = models.ForeignKey('Viajeros', on_delete=models.CASCADE)
     estado_reserva = models.ForeignKey('Estados_Reservas', on_delete=models.CASCADE)
+    hotel_id = models.ForeignKey('Hotel', on_delete=models.CASCADE)
+    
 
     def __str__(self):
         return f"Reserva {self.pk}"

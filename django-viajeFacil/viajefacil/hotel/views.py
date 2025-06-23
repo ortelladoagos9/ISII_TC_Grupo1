@@ -1,19 +1,18 @@
 from django.shortcuts import render,redirect
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-from .models import Hotel, Localidad, Hoteles_Categorias
+from .models import Hotel, Localidad
 from django.db import connection
 from datetime import datetime
 import locale
-import math
-from .utils import obtenerHoteles
-from .utils import buscarHotel
-from .utils import mostrarHabitacionesHotel
-from .utils import mostrarServiciosHotel
-from .utils import mostrarServiciosCategorias
-from .utils import buscarHotelPorId
-from .utils import buscarCategoriaPorId
-from .utils import insertarViajero
+from decimal import Decimal, ROUND_HALF_UP
+from datetime import date
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.template.loader import get_template
+from itertools import combinations_with_replacement
+from .utils import obtenerHoteles,buscarHotel,mostrarHabitacionesHotel,mostrarServiciosHotel,mostrarServiciosCategorias,buscarHotelPorId,ingresarDatos
+from .utils import verificarOCrearDireccion,ingresarDatos,insertarCabeceraReservaHotel,insertarDetalleReservaHotel,generarFactura
 
 def index_alojamientos (request):
     return render (request, 'index_alojamientos.html')
@@ -24,13 +23,13 @@ def lista_hoteles(request):
 
 def obtener_destinos(request):
     localidades = Localidad.objects.select_related('provincia__pais').all()
-    destinos = []
 
+    destinos = []
     for loc in localidades:
         destinos.append({
-            'localidad': loc.nombre_localidad,
-            'provincia': loc.provincia,
-            'pais': loc.provincia.pais.nombre_pais,
+            'destino': f"{loc.nombre_localidad}, {loc.provincia.nombre_provincia}, {loc.provincia.pais.nombre_pais}",
+            'tipo': 'localidad',
+            'id': loc.id
         })
 
     return JsonResponse(destinos, safe=False)
@@ -102,7 +101,7 @@ def hoteles_por_destino(request):
             hoteles = buscarHotel(id_origen, tipo)
 
     if not hoteles:
-        error = "No se encontraron hoteles para esa zona"
+        error = "No se encontraron hoteles para el destino seleccionado"
 
 
     return render(request, 'lista_hoteles.html', {
@@ -110,38 +109,83 @@ def hoteles_por_destino(request):
         'error': error
     })
 
+def generar_combinaciones_validas(categorias, personas, habitaciones_max):
+    combinaciones_validas = []
+
+    # Extraemos solo las categorías con al menos una disponibilidad
+    categorias_disponibles = [
+        cat for cat in categorias if cat['cantidad_disponible'] > 0
+    ]
+
+    for r in range(1, habitaciones_max + 1):  # cantidad de habitaciones desde 1 hasta habitaciones_max
+        for combo in combinations_with_replacement(categorias_disponibles, r):
+            total_personas = sum(cat['capacidad_categoria'] for cat in combo)
+            cantidad_por_categoria = {}
+            for cat in combo:
+                key = cat['id_categoria']
+                cantidad_por_categoria[key] = cantidad_por_categoria.get(key, 0) + 1
+
+            # Validar si hay disponibilidad real y se cubren las personas
+            if total_personas >= personas and all(
+                cantidad_por_categoria[key] <= next(
+                    (c['cantidad_disponible'] for c in categorias_disponibles if c['id_categoria'] == key), 0
+                ) for key in cantidad_por_categoria
+            ):
+                combinaciones_validas.append(combo)
+
+    return combinaciones_validas
+
+def obtener_entero_seguro(valor, por_defecto=1):
+    try:
+        return int(valor)
+    except (ValueError, TypeError):
+        return por_defecto
+
 def detalle_hotel(request, id):
-    # 1. Buscar hoteles por localidad
+   #Obtenemos los datos de la sesion
+    datos = request.session.get('busqueda')
+    #Obtenemos las fechas
+    fecha_ingreso = datos.get('fecha_ingreso')  # '2025-06-23'
+    fecha_egreso = datos.get('fecha_egreso')    # '2025-06-29'
+    
     hoteles = buscarHotel(id, 'localidad')
+    hotel = hoteles[0] if hoteles else None
 
-    # 2. Tomar el primer hotel (siempre será uno solo en detalle)
-    hotel = None
-    if hoteles:
-        hotel = hoteles[0]
+    if hotel:
+        request.session['id_hotel'] = id
+        categorias = mostrarHabitacionesHotel(hotel['id'], fecha_ingreso, fecha_egreso)
 
-    request.session['id_hotel'] = id
-    #request.session['id_hotel'] = hotel[0]
+        for cat in categorias:
+            id_cat = cat.get('id_categoria')
+            cat['servicios'] = mostrarServiciosCategorias(id_cat)
 
-    # 3. Obtener las categorías de ese hotel
-    categorias = mostrarHabitacionesHotel(hotel['id']) if hotel else []
+        servicios = mostrarServiciosHotel(hotel['id'])
 
-    # 4. Para cada categoría, agregar sus servicios
-    for cat in categorias:
-        id_cat = cat.get('id')  # asegurate que mostrarHabitacionesHotel devuelva el campo "id"
-        cat['servicios'] = mostrarServiciosCategorias(id_cat)
+        # Recuperar los datos del formulario (personas y habitaciones)
+        datos_busqueda = request.session.get('busqueda', {})
+        personas = obtener_entero_seguro(datos_busqueda.get('cantidad_personas'), 1)
+        habitaciones = obtener_entero_seguro(datos_busqueda.get('cantidad_habitaciones'), 1)
 
-    # 5. Obtener los servicios de ese hotel
-    servicios = mostrarServiciosHotel(hotel['id']) if hotel else []
 
-    for cat in categorias:
-        cat_id = cat.get('id')
-    cat['servicios'] = mostrarServiciosCategorias(cat_id)
+        # Generar combinaciones válidas
+        combinaciones = generar_combinaciones_validas(categorias, personas, habitaciones)
+        combinaciones = [list(tupla) for tupla in combinaciones]
+        request.session['combinaciones'] = combinaciones
 
+
+        print("",combinaciones),
+        return render(request, 'detalle_hotel.html', {
+            'hotel': hotel,
+            'categorias': categorias,
+            'servicios': servicios,
+            'combinaciones': combinaciones,
+            'personas': personas,
+            'habitaciones': habitaciones,
+        })
+    
 
     return render(request, 'detalle_hotel.html', {
-        'hotel': hotel,
-        'categorias': categorias,
-        'servicios' : servicios
+        'error': "No se encontró el hotel solicitado"
     })
 
 def seleccionar_categoria(request):
@@ -152,149 +196,9 @@ def seleccionar_categoria(request):
             return redirect('hotel:detalle_reserva')  # va al finalizar reserva
     return redirect('hotel:buscar_alojamientos')  # redirige si falla
 
-def calcular_total_reserva(request,precio_unitario,cantidad_noches):
-
+def calcular_dias_reserva(request):
     #Obtenemos los datos de la sesion
     datos = request.session.get('busqueda')
-
-    #Obtenemos y convertimos la cantidad de habitaciones
-    cantidad_hab = int(datos.get('cantidad_habitaciones') or 1)
-
-    #Obtenemos el precio final de la reserva
-    subtotal = precio_unitario * cantidad_hab * cantidad_noches
-    #Calculamos los impuestos
-    impuestos_tasas = subtotal * 0.21
-    #Calculamos los cargos (comisiones del sitio o plataforma,costos por gestión de reserva, seguros, etc.)
-    cargos = subtotal * 0.05
-    precio_reserva = subtotal + impuestos_tasas + cargos
-    #Formateamos para que se muestre de forma correcta
-    precio_formateado = f"{subtotal:,.0f}".replace(",", ".")
-    cargos_formateado = f"{cargos:,.0f}".replace(",", ".")
-    impuestos_formateado = f"{impuestos_tasas:,.0f}".replace(",", ".")
-    precio_final = f"{precio_reserva:,.0f}".replace(",", ".")
-
-    return[precio_formateado,cargos_formateado,impuestos_formateado,precio_final]
-
-def calcular_habitaciones_por_persona(request):
-    #Obtenemos los datos de la sesion
-    datos = request.session.get('busqueda')
-
-    # Recuperamos la cantidad de personas de la sesión 
-    personas_str = datos.get('cantidad_personas')
-    try:
-        personas = int(personas_str) if personas_str else 1
-    except ValueError:
-        personas = 1  # valor por defecto si alguien rompe algo
-
-    #Obtenemos los datos de la categoria seleccionada
-    id_categoria = request.session.get('id_categoria_seleccionada')
-    categoria = buscarCategoriaPorId(id_categoria)
-    capacidad_categoria = categoria[0]['capacidad_categoria'] 
-
-    # Cálculo obligatorio para que nadie duerma en el pasillo
-    habitaciones_requeridas = math.ceil(personas / capacidad_categoria)
-
-    return habitaciones_requeridas
-
-def regis_reservas_hoteles(request,precio_final):
-
-    datos = request.session.get('busqueda')
-    #Obtenemos el precio final de la reserva
-    #precio_final
-
-    #Obtenemos la fecha de la reserva
-
-    #Obtenemos las fechas
-    fecha_ingreso = datos.get('fecha_ingreso')  # '2025-06-23'
-    fecha_egreso = datos.get('fecha_egreso')    # '2025-06-29'
-
-    #Guardamos el id del estado de la reserva
-    estado_reserva_id = 1 # Confirmada
-
-    #Obtenemos el id del viajero
-    id_viajero = request.session.get('id_viajero')
-
-def guardar_datos_viajero(request):
-    if request.method == 'POST':
-        nombre = request.POST.get('nombre_viajero')
-        apellido = request.POST.get('apellido_viajero')
-        identificacion = request.POST.get('identificacion_viajero')
-        email = request.POST.get('email_viajero')
-        telefono = request.POST.get('telefono_viajero')
-        fecha_nacimiento = request.POST.get('fecha_nacimiento_viajero')
-        clave = request.POST.get('clave_viajero')
-
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute("""
-                    INSERT INTO Viajeros 
-                    (identificacion_viajero, nombre_viajero, apellido_viajero, telefono_viajero, 
-                     email_viajero, fecha_nacimiento_viajero, clave_viajero)
-                    VALUES (%s, %s, %s, %s, %s, %s, %s)
-                """, [
-                    identificacion, nombre, apellido, telefono,
-                    email, fecha_nacimiento, clave
-                ])
-        except Exception as e:
-            print("Error al guardar el viajero:", e)
-            return render(request, 'index_reserva.html', {
-                'error': 'No se pudo guardar el viajero. Revisá los datos.'
-            })
-
-        # Redireccionar o continuar con la reserva
-        return redirect('hotel:finalizar_reserva')  # Cambiá esto si querés otra ruta
-
-    return redirect('hotel:detalle_reserva')
-
-
-def guardar_datos_viajero(request):
-    if request.method == 'POST':
-        identificacion = request.POST.get('identificacion_viajero')
-        nombre = request.POST.get('nombre_viajero')
-        apellido = request.POST.get('apellido_viajero')
-        email = request.POST.get('email_viajero')
-        codigo_pais = request.POST.get('codigo_pais')
-        telefono = request.POST.get('telefono_viajero')
-        fecha_nacimiento = request.POST.get('fecha_nacimiento_viajero')
-        clave = request.POST.get('clave_viajero')
-
-        telefono_viajero = codigo_pais + telefono
-
-        print("",nombre,apellido,identificacion,email,telefono_viajero,fecha_nacimiento,clave)
-
-        """
-        try:
-            with connection.cursor() as cursor:
-                cursor.execute("EXEC insertarViajero %s, %s, %s, %s, %s, %s, %s", [
-                    identificacion, nombre, apellido, telefono,
-                    email, fecha_nacimiento, clave
-                ])
-        except Exception as e:
-            print("Error al guardar el viajero:", e)
-            return render(request, 'index_reserva.html', {
-                'error': 'No se pudo guardar el viajero. Revisá los datos.'
-            })
-        """
-
-        # Redireccionar o continuar con la reserva
-        return redirect('hotel:buscar_alojamientos')  # Reemplaza por el nombre correcto si tenés otra vista
-
-    return redirect('hotel:detalle_reserva')
-
-
-def detalle_reserva(request):
-    locale.setlocale(locale.LC_TIME, 'Spanish_Argentina') # Para formato en español 
-    
-    #Obtenemos los datos de la sesion
-    datos = request.session.get('busqueda')
-    #Obtenemos el id del hotel
-    id_hotel = request.session.get('id_hotel')
-    hotel = buscarHotelPorId(id_hotel)
-    #Obtenemos la categoria de la habitación seleccionada
-    id_categoria = request.session.get('id_categoria_seleccionada')
-    categoria = buscarCategoriaPorId(id_categoria)
-
-    
     #Obtenemos las fechas
     fecha_ingreso_str = datos.get('fecha_ingreso')  # '2025-06-23'
     fecha_egreso_str = datos.get('fecha_egreso')    # '2025-06-29'
@@ -310,42 +214,291 @@ def detalle_reserva(request):
     if fecha_ingreso and fecha_egreso and fecha_egreso > fecha_ingreso:
         cantidad_noches = (fecha_egreso - fecha_ingreso).days
     else:
-        cantidad_noches = 0
-    #Transformamos a un formato mas agradable
+        cantidad_noches = 1
+
+    return cantidad_noches
+
+def detalle_reserva(request):
+    locale.setlocale(locale.LC_TIME, 'Spanish_Argentina')
+
+    datos = request.session.get('busqueda')
+    id_hotel = request.session.get('id_hotel')
+    hotel = buscarHotelPorId(id_hotel)
+    cantidad_noches = calcular_dias_reserva(request)
+
+    fecha_ingreso = datetime.strptime(datos.get('fecha_ingreso'), '%Y-%m-%d')
+    fecha_egreso = datetime.strptime(datos.get('fecha_egreso'), '%Y-%m-%d')
+
     fecha_ingreso_fmt = fecha_ingreso.strftime('%a. %d %b. %Y').capitalize()
     fecha_egreso_fmt = fecha_egreso.strftime('%a. %d %b. %Y').capitalize()
 
-    #Obtenemos la cantidad de estrellas del hotel
     estrellas = range(hotel[0]['cantidad_estrellas_hotel'])
 
-    #Obtenemos el precio de cada categoria
-    precio_unitario = float(categoria[0]['precio_categoria'])
+    # 💡 Obtener la combinación de habitaciones seleccionadas
+    combinacion = request.session.get('combinacion_elegida', [])
+    total_bruto = 0
 
-    #obtenemos y convertimos los montos de la reserva
-    precio_formateado=calcular_total_reserva(request,precio_unitario,cantidad_noches)[0]
-    cargos_formateado=calcular_total_reserva(request,precio_unitario,cantidad_noches)[1]
-    impuestos_formateado=calcular_total_reserva(request,precio_unitario,cantidad_noches)[2]
-    precio_final=calcular_total_reserva(request,precio_unitario,cantidad_noches)[3]
+    # Calcular el total sumando los precios de cada habitación x noches
+    for hab in combinacion:
+        precio_str = hab['precio_categoria'].replace('.', '').replace(',', '.')
+        precio_unitario = float(precio_str)
+        total_bruto += precio_unitario * cantidad_noches
 
-    habitaciones_necesarias=range(calcular_habitaciones_por_persona(request))
+    # 💰 Impuestos y cargos
+    impuestos = total_bruto * 0.21
+    cargos = total_bruto * 0.05
+    total_final = total_bruto + impuestos + cargos
 
-    cantidad = calcular_habitaciones_por_persona(request)
-    habitaciones_necesarias = range(cantidad)
+    request.session['precio_final'] = total_final
+    personas = obtener_entero_seguro(datos.get('cantidad_personas'), 1)
+
+    # 💸 Formato
+    f = lambda x: f"{x:,.0f}".replace(",", ".")
 
     return render(request, 'index_reserva.html', {
         'datos': datos,
         'hotel': hotel[0],
-        'categoria':categoria[0],
         'estrellas': estrellas,
-        'precio_reserva':precio_formateado,
-        'precio_final':precio_final,
-        'impuestos':impuestos_formateado,
-        'cargos':cargos_formateado,
+        'precio_reserva': f(total_bruto),
+        'impuestos': f(impuestos),
+        'cargos': f(cargos),
+        'precio_final': f(total_final),
         'fecha_ingreso_fmt': fecha_ingreso_fmt,
         'fecha_egreso_fmt': fecha_egreso_fmt,
         'cantidad_noches': cantidad_noches,
-        'habitaciones_necesarias':habitaciones_necesarias
+        'combinacion': combinacion,
+        'personas':personas
     })
 
+def vista_registro(request):
+
+    return render(request, 'index_register.html')
+
+def generar_detalle_reserva(request):
+
+    if request.method == 'POST':
+        # Guardás en sesión (o podrías recibir desde POST también)
+        detalle = calcular_detalle_desde_combinacion(request)
+
+         # ESTE PRINT ES EL IMPORTANTE
+        print("DETALLE DE RESERVA GENERADO:", detalle)
+
+        request.session['detalle_reserva'] = detalle  # Guardar en sesión si hace falta
+        return redirect('hotel:detalle_reserva')  # Redirige a la página de confirmación
+    else:
+        return redirect('hotel:buscar_alojamientos')
+
+def calcular_detalle_desde_combinacion(request):
+    noches = calcular_dias_reserva(request)
+
+    indice = int(request.POST.get('indice'))
+    combinaciones = request.session.get('combinaciones', [])
+    if not 0 <= indice < len(combinaciones):
+        return []
+
+    combinacion = combinaciones[indice]
+    request.session['combinacion_elegida'] = combinacion
+
+    detalle = []
+
+    for habitacion in combinacion:
+        cat_id = habitacion['id_categoria']
+        precio_str = habitacion['precio_categoria'].replace('.', '').replace(',', '.')
+        precio_unitario = float(precio_str)
+        subtotal = precio_unitario * noches
+
+        detalle.append({
+            'categoria_id': cat_id,
+            'precio_unitario': precio_unitario,
+            'subtotal': subtotal
+        })
+    
+    return detalle
+
+#Desde aqui empiezan las funciones de la creacion de la reserva
+#--
+#--Funcion para registrar el viajero
+def insertar_viajero(request):
+    if request.method == 'POST':
+        # Datos personales
+        nombre = request.POST.get('nombre_viajero')
+        apellido = request.POST.get('apellido_viajero')
+        identificacion = request.POST.get('identificacion_viajero')
+        email = request.POST.get('email_viajero')
+        telefono = request.POST.get('telefono_viajero')
+        nacimiento = request.POST.get('fecha_nacimiento_viajero')
+        clave = 'NULL'
+
+        # Dirección
+        pais = request.POST.get('pais') or 'Argentina'
+        provincia = request.POST.get('provincia')
+        localidad = request.POST.get('localidad') 
+        calle = request.POST.get('calle')
+        numero = request.POST.get('numero')
+        cod_postal = request.POST.get('codpostal')
+
+        # Paso siguiente (cuando esté el proc): llamar a verificarOCrearDireccion
+        id_direccion=verificarOCrearDireccion(pais,provincia,localidad,calle,numero,cod_postal)
+        # y luego insertar el viajero
+        id_viajero = ingresarDatos(identificacion,nombre,apellido,telefono,email,nacimiento,clave,id_direccion)
+    return id_viajero
+
+#--Funcion para generar la cabecera
+def insertar_cabecera_reserva(request):
+    # Obtenemos datos generales
+    datos = request.session.get('busqueda')
+    # Obtener datos de cabecera
+    monto_total = request.session.get('precio_final', '0')
+    
+    # Estado: será 1 (Confirmada)
+    estado_id = 1 
+    #Fecha del dia de la reserva
+    fecha_reserva = datetime.today().date()
+
+    # Fechas
+    fecha_ingreso = datos.get('fecha_ingreso')
+    fecha_egreso = datos.get('fecha_egreso')
+    fecha_reserva = datetime.today().date()
+
+    id_viajero = request.session['id_viajero']
+
+    #Generamos la cabecera de la reserva
+    id_cabecera_reserva=insertarCabeceraReservaHotel(monto_total,fecha_reserva,fecha_ingreso,fecha_egreso,estado_id,id_viajero)
+    
+    #Devolvemos el id
+    return id_cabecera_reserva
+
+#--Funcion para insertar el detalle de la reserva del hotel
+
+def insertar_detalle_reserva(request):
+    if request.method == 'POST':
+        reserva_id = request.session.get('id_reserva')
+        combinacion = request.session.get('combinacion_elegida', [])
+
+        noches = calcular_dias_reserva(request)
+        detalle = []
+
+        for habitacion in combinacion:
+            cat_id = habitacion['id_categoria']
+            precio_str = habitacion['precio_categoria'].replace('.', '').replace(',', '.')
+            try:
+                precio_unitario = float(precio_str)
+            except Exception as e:
+                print("⚠️ Error al convertir precio:", precio_str, e)
+                continue
+
+            subtotal = precio_unitario * noches
+
+            detalle.append({
+                'categoria_id': cat_id,
+                'precio_unitario': precio_unitario,
+                'subtotal': subtotal
+            })
+
+        for item in detalle:
+            insertarDetalleReservaHotel(
+                cantidad_habitaciones=1,
+                precio_unitario=item['precio_unitario'],
+                sub_total=item['subtotal'],
+                categoria_id=item['categoria_id'],
+                reserva_hotel_id=reserva_id,
+            )
+
+#--Funcion final, donde va ir si la reserva fue exitosa
+def reserva_exitosa(request):
+    return render(request,'reserva_exitosa.html')
+
+# -- FUNCIÓN FINAL PARA REGISTRAR TODA LA RESERVA COMPLETA --
+def procesar_reserva_completa(request):
+    if request.method == 'POST':
+        try:
+            # 1. Registrar el viajero (y guardar su id en sesión)
+            id_viajero = insertar_viajero(request)
+            request.session['id_viajero'] = id_viajero
+
+            # 2. Generar cabecera de reserva (y guardar su id en sesión)
+            id_reserva = insertar_cabecera_reserva(request)
+            request.session['id_reserva'] = id_reserva
+
+            # 3. Insertar detalle (usando la combinación seleccionada y la reserva id)
+            insertar_detalle_reserva(request)
+
+            print("✅ Reserva registrada correctamente")
+            return redirect('hotel:reserva_exitosa')
+
+        except Exception as e:
+            print("❌ Error al procesar reserva:", e)
+            return redirect('hotel:detalle_reserva')
+
+    return redirect('hotel:buscar_alojamientos')
+
+def ver_factura(request, id_reserva):
+    try:
+        factura = generarFactura(id_reserva)
+
+        # Extraer datos clave
+        reserva = factura['reserva'][0]
+        monto_total = reserva['monto_total_reserva']
+
+        # Calcular componentes del total
+        subtotal = (monto_total / Decimal('1.26')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        impuestos = (subtotal * Decimal('0.21')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+        cargos = (subtotal * Decimal('0.05')).quantize(Decimal('1'), rounding=ROUND_HALF_UP)
+
+        contexto = {
+            'viajero': factura['viajero'][0],
+            'reserva': reserva,
+            'hotel': factura['hotel'][0],
+            'detalle': factura['detalle'],
+            'subtotal': subtotal,
+            'impuestos': impuestos,
+            'cargos': cargos,
+        }
+        
+        #email_viajero = request.POST.get('email_viajero')
+        email_viajero= 'carlosdaniel313@gmail.com'
+        enviar_factura_por_correo(request, id_reserva, email_viajero)
 
 
+        return render(request, 'index_factura.html', contexto)
+
+    except Exception as e:
+        print(f"❌ Error al generar factura: {e}")
+        return render(request, 'index_factura.html', {
+            'error': 'No se pudo generar la factura.'
+        })
+
+def enviar_factura_por_correo(request, id_reserva, email_destino):
+    try:
+        factura = generarFactura(id_reserva)
+        context = {
+            'viajero': factura['viajero'][0],
+            'reserva': factura['reserva'][0],
+            'hotel': factura['hotel'][0],
+            'detalle': factura['detalle'],
+            'subtotal': factura.get('subtotal', 0),
+            'impuestos': factura.get('impuestos', 0),
+            'cargos': factura.get('cargos', 0),
+        }
+
+        html_content = render_to_string('index_factura.html', context)
+
+        asunto = f"Factura de tu reserva #{context['reserva']['nro_reserva']}"
+        mensaje = EmailMultiAlternatives(
+            subject=asunto,
+            body='Gracias por tu reserva. Adjunto encontrarás tu factura.',
+            from_email='tucorreo@gmail.com',
+            to=[email_destino]
+        )
+        mensaje.attach_alternative(html_content, "text/html")
+        mensaje.send()
+
+        print("📧 Factura enviada a", email_destino)
+
+    except Exception as e:
+        print("❌ Error al enviar el correo:", e)
+
+
+def ver_reservas(request,id_viajero):
+    
+     return render(request, 'mis_reservas.html')

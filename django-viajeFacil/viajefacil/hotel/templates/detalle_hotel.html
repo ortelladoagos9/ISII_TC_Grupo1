@@ -25,7 +25,9 @@
                 <!--Datos del hotel-->
                 <div class="row">
                     <div class="col-4 pt-4">
-                        <img class="img-fluid rounded" src="{% static 'img/mardel.jpg' %}" alt="Mar del Plata">
+                        <img src="{% static 'img/hoteles/' %}{{ hotel.imagen_hotel }}.png" class="img-fluid rounded"
+                            alt="{{ hotel.nombre_hotel }}">
+
                     </div>
                     <div class="col-6">
                         <section class="ps-0 pt-4 hotel-list-section">
@@ -60,65 +62,73 @@
                     </div>
                 </div>
                 <!--Card de las categorias del hotel -->
-                <div class="col-12 mt-3 mb-3">
-                    <h3 class="pb-3 fs-1">Habitaciones disponibles</h3>
-                    {% for cat in categorias %}
-                    <div class="card mb-3 me-5">
-                        {% if forloop.first %}
-                        <p style="background-color: #c8efc1;" class="fs-4 ps-3">
-                            <i class="bi bi-star-fill fs-3 pe-2 text-white"></i>
-                            Recomendado
-                        </p>
-                        {% endif %}
-                        <div class="row ">
-                            <div class="col-4">
-                                <img class="img-fluid rounded" src="{% static 'img/hab.png' %}" alt="habitacion">
-                            </div>
-                            <div class="col-4 card-body">
-                                <h5 class="card-title fs-4 fw-bold">
-                                    {{ cat.nombre_categoria }} {{ cat.descripcion_categoria }}
-                                </h5>
-                                {% if cat.capacidad_categoria == 1 %}
-                                <p class="card-text fs-4">
-                                    <i class="bi bi-person-fill fs-4 pe-1"></i>
-                                    {{ cat.capacidad_categoria }} persona en 1 habitación
-                                </p>
-                                {% else %}
-                                <p class="card-text fs-4">
-                                    <i class="bi bi-person-fill fs-4 pe-1"></i>
-                                    {{ cat.capacidad_categoria }} personas en 1 habitación
-                                </p>
-                                {% endif %}
-                                <p class="card-text fs-4 fw-bold">
-                                    <i class="bi bi-currency-dollar text-success fs-3 pe-0"></i>
-                                    {{ cat.precio_categoria }}
-                                </p>
-                                <p><strong>Servicios:</strong></p>
-                                <ul>
-                                    {% for servicio in cat.servicios %}
-                                    <li>{{ servicio.nombre_servicio }}</li>
-                                    {% empty %}
-                                    <li>No hay servicios asignados</li>
-                                    {% endfor %}
-                                </ul>
 
+                <div class="row mt-3">
+                    <h3 class="pb-3 fs-1">Habitaciones disponibles</h3>
+                    {% if combinaciones %}
+                    {% for combo in combinaciones %}
+                    <div class="card pb-2 mb-4">
+                        <div class="row">
+                            {% if forloop.first %}
+                            <p style="background-color: #c8efc1;" class="fs-4 ps-3 pt-2 pb-2">
+                                <i class="bi bi-star-fill fs-3 pe-2 text-white"></i> Recomendado
+                            </p>
+                            {% endif %}
+                            <div class="col-5">
+                                <img src="{% static 'img/categorias/' %}{{ combo.0.imagen_categoria }}.png"
+                                    class="img-fluid rounded" alt="{{ combo.0.nombre_categoria }}">
                             </div>
-                            <div class="col-4 mt-5">
-                                <form method="post" action="{% url 'hotel:seleccionar_categoria' %}">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="id_categoria" value="{{ cat.id }}">
-                                    <button type="submit" class="btn-lg border-3 btn btn-outline-success">Reservar ahora</button>
-                                </form>
+                            <div class="col-7">
+                                <div class="card-body">
+                                    <h5 class="card-title fw-bold fs-4">Combinación sugerida</h5>
+
+                                    {% for habitacion in combo %}
+                                    <p class="card-text fs-5 mb-0">
+                                        <span class="fs-4">
+                                            {{ habitacion.nombre_categoria }} {{ habitacion.descripcion_categoria }} -
+                                            Capacidad: {{ habitacion.capacidad_categoria }} personas
+                                        </span>
+                                        <br><span class="pt-1 fw-bold">Precio: ${{ habitacion.precio_categoria }} por
+                                            noche</span>
+                                    </p>
+                                    <p class="fs-5 mb-0">Servicios:</p>
+                                    <p class="ms-2 fs-5">
+                                        {% for servicio in habitacion.servicios %}
+                                        <span class="fw-bold">{{ servicio.nombre_servicio }}{% if not forloop.last %},
+                                            {% endif %}</span>
+                                        {% empty %}
+                                        <span>Sin servicios</span>
+                                        {% endfor %}
+                                        <hr class="border border-5 border-success rounded-3">
+                                    </p>
+                                    {% endfor %}
+                                </div>
+                                <div class="col-12 text-end pe-4 pb-2">
+                                    <form method="post" action="{% url 'hotel:generar_detalle_reserva' %}">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="indice" value="{{ forloop.counter0 }}">
+                                        <button type="submit" class="btn btn-success btn-lg">Reservar ahora</button>
+                                    </form>
+                                </div>
                             </div>
                         </div>
                     </div>
 
+                    {% empty %}
+                    <p class="text-danger fs-4">No se encontraron combinaciones disponibles.</p>
                     {% endfor %}
-                    <!--Fin Card de los hoteles-->
+
+                    {% else %}
+                    <p class="fs-4 text-danger">No hay combinaciones disponibles para esta cantidad de personas y
+                        habitaciones.</p>
+                    {% endif %}
                 </div>
 
             </div>
         </div>
+
+
+
     </div>
 
 
@@ -132,4 +142,4 @@
         const DESTINOS_API_URL = "{% url 'hotel:api_destinos' %}";
     </script>
     <script src="{% static 'js/lista_hoteles.js' %}"></script>
-    {% endblock %}
+    {% endblock %}"

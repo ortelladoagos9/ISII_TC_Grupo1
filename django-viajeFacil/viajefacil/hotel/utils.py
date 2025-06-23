@@ -6,7 +6,6 @@ def obtenerHoteles():
         cursor.execute("EXEC obtenerHoteles")
         columnas = [col[0] for col in cursor.description]
         return [dict(zip(columnas, fila)) for fila in cursor.fetchall()]
-    
 
 def buscarHotel(id_direccion, tipo):
     with connection.cursor() as cursor:
@@ -28,13 +27,11 @@ def buscarHotelPorId(id_hotel):
         resultados = [dict(zip(columnas, fila)) for fila in filas]
         return resultados
 
-def mostrarHabitacionesHotel(id_hotel):
+def mostrarHabitacionesHotel(id_hotel, fecha_ingreso, fecha_egreso):
     with connection.cursor() as cursor:
-        cursor.execute("EXEC mostrarHabitacionesHotel %s", [id_hotel])
+        cursor.execute("EXEC buscarHabitacionesDisponibles %s, %s, %s", [id_hotel, fecha_ingreso, fecha_egreso])
         columnas = [col[0] for col in cursor.description]
-        resultados = [dict(zip(columnas, fila)) for fila in cursor.fetchall()]
-        return resultados
-
+        return [dict(zip(columnas, fila)) for fila in cursor.fetchall()]
 
 def mostrarServiciosHotel(id_hotel):
     with connection.cursor() as cursor:
@@ -57,30 +54,61 @@ def buscarCategoriaPorId(id_categoria):
         resultados = [dict(zip(columnas, fila)) for fila in cursor.fetchall()]
         return resultados
 
-from django.db import connection
+def verificarOCrearDireccion(pais, provincia, localidad, calle, numero, cod_postal):
+    with connection.cursor() as cursor:
+        cursor.execute("EXEC verificarOCrearDireccion %s, %s, %s, %s, %s, %s", 
+                       [pais, provincia, localidad, calle, numero, cod_postal])
+        row = cursor.fetchone()
+        return row[0] if row else None  # Devuelve solo el ID o None
 
-def insertarViajero(data):
-    try:
-        with connection.cursor() as cursor:
-            cursor.execute("""
-                EXEC insertarViajero 
-                    @identificacion=%s,
-                    @nombre=%s,
-                    @apellido=%s,
-                    @telefono=%s,
-                    @email=%s,
-                    @fecha_nacimiento=%s,
-                    @clave=%s
-            """, [
-                data['identificacion_viajero'],
-                data['nombre_viajero'],
-                data['apellido_viajero'],
-                data['telefono_viajero'],
-                data['email_viajero'],
-                data['fecha_nacimiento_viajero'],
-                data['clave_viajero']
-            ])
-        return True
-    except Exception as e:
-        print("Error al insertar viajero:", e)
-        return False
+def ingresarDatos(identificacion, nombre, apellido, telefono, email, fecha_nacimiento, clave, direccion_id):
+    with connection.cursor() as cursor:
+        cursor.execute("EXEC ingresarDatos %s, %s, %s, %s, %s, %s, %s, %s", 
+                       [identificacion, nombre, apellido, telefono, email, fecha_nacimiento, clave, direccion_id])
+        row = cursor.fetchone()
+        return row[0] if row else None
+
+def insertarCabeceraReservaHotel(monto_total,fecha_reserva,fecha_ingreso,fecha_egreso,estado_reserva_id,viajero_id):
+    with connection.cursor() as cursor:
+        cursor.execute("EXEC insertarCabeceraReservaHotel %s, %s, %s, %s, %s, %s", 
+                       [monto_total,fecha_reserva,fecha_ingreso,fecha_egreso,estado_reserva_id,viajero_id])
+        row = cursor.fetchone()
+        return row[0] if row else None  # Devuelve solo el ID o None
+
+def insertarDetalleReservaHotel(cantidad_habitaciones,precio_unitario,sub_total,categoria_id,reserva_hotel_id):
+    with connection.cursor() as cursor:
+        cursor.execute("EXEC insertarDetalleReservaHotel %s, %s, %s, %s, %s", 
+                       [cantidad_habitaciones,precio_unitario,sub_total,categoria_id,reserva_hotel_id])
+
+def generarFactura(id_reserva):
+    resultados = {
+        'viajero': [],
+        'reserva': [],
+        'hotel': [],
+        'detalle': []
+    }
+
+    with connection.cursor() as cursor:
+        cursor.execute("EXEC generarFactura %s", [id_reserva])
+
+        #  Datos del viajero
+        columnas = [col[0] for col in cursor.description]
+        resultados['viajero'] = [dict(zip(columnas, row)) for row in cursor.fetchall()]
+
+        #  Datos de la cabecera de la reserva
+        cursor.nextset()
+        columnas = [col[0] for col in cursor.description]
+        resultados['reserva'] = [dict(zip(columnas, row)) for row in cursor.fetchall()]
+
+        # Datos del hotel
+        cursor.nextset()
+        columnas = [col[0] for col in cursor.description]
+        resultados['hotel'] = [dict(zip(columnas, row)) for row in cursor.fetchall()]
+
+        # Datos del detalle de reserva
+        cursor.nextset()
+        columnas = [col[0] for col in cursor.description]
+        resultados['detalle'] = [dict(zip(columnas, row)) for row in cursor.fetchall()]
+
+    return resultados
+
